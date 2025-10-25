@@ -1,0 +1,117 @@
+############################
+# Build artifacts
+############################
+bin/
+obj/
+out/
+[Bb]uild/
+[Ll]ogs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.tmp
+*.dbmdl
+*.db
+
+############################
+# Visual Studio Code
+############################
+.vscode/
+.history/
+*.code-workspace
+
+############################
+# User-specific files
+############################
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+############################
+# Auto-generated files
+############################
+*.generated.cs
+*.designer.cs
+*.g.cs
+*.g.i.cs
+*.AssemblyInfo.cs
+
+############################
+# NuGet / Packages
+############################
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+project.lock.json
+project.fragment.lock.json
+
+############################
+# DotNet tools / runtime
+############################
+.dotnet/
+*.runtimeconfig.json
+*.deps.json
+*.bak
+*.swp
+*.swm
+
+############################
+# Test results
+############################
+TestResults/
+*.coverage
+*.coveragexml
+*.testsettings
+*.trx
+
+############################
+# ReSharper / Rider
+############################
+_ReSharper*/
+.idea/
+*.DotSettings.user
+
+############################
+# Temporary files
+############################
+~$*
+*.tmp
+*.temp
+*.old
+
+############################
+# OS-specific junk
+############################
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+############################
+# Others (optional)
+############################
+# Ignore publish folder
+publish/
+dist/
+
+# Ignore secrets (never commit!)
+appsettings.Development.json
+secrets.json
+*.key
+*.pem
