@@ -115,3 +115,6 @@ appsettings.Development.json
 secrets.json
 *.key
 *.pem
+
+API/dating.db*
+API/appsettings.json
