@@ -15,7 +15,9 @@ namespace API.Entities
         public required string City { get; set; }
         public required string Country { get; set; }
 
-        // Navigation Property
+        // Navigation Properties
+        public List<Photo> Photos { get; set; } = [];
+
         [ForeignKey(nameof(Id))]
         public AppUser User { get; set; } = null!;
     }
