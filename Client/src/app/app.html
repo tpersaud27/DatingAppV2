@@ -5,7 +5,7 @@
     @for (member of members(); track member.id) {
     <mat-card class="user-card" appearance="outlined">
       <mat-card-header>
-        <div mat-card-avatar class="example-header-image"></div>
+        <img mat-card-avatar [src]="member.avatarUrl || '/user.png'" alt="User avatar" />
         <mat-card-title>{{ member.displayName }}</mat-card-title>
         <mat-card-subtitle>Location</mat-card-subtitle>
       </mat-card-header>
