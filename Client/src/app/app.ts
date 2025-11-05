@@ -3,12 +3,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, MatCardModule, MatListModule, MatDividerModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatListModule, MatButtonModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
