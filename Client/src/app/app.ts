@@ -4,10 +4,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
+import { Nav } from '../layout/nav/nav';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, MatCardModule, MatListModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatListModule, MatButtonModule, Nav],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
