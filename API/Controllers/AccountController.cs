@@ -3,15 +3,17 @@ using System.Text;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    public class AccountController(AppDbContext context) : BaseApiController
+    public class AccountController(AppDbContext context, ITokenService tokenService)
+        : BaseApiController
     {
         [HttpPost("register")] // api/account/register
-        public async Task<ActionResult<AppUser>> Register(RegisterDTO registerDTO)
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
             if (await DoesEmailExist(registerDTO.Email))
             {
@@ -33,11 +35,17 @@ namespace API.Controllers
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            return user;
+            return new UserDTO
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = tokenService.CreateToken(user),
+            };
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AppUser>> Login(LoginDTO loginDto)
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDto)
         {
             // Check if user exists
             var user = await context.Users.SingleOrDefaultAsync(user =>
@@ -59,7 +67,13 @@ namespace API.Controllers
                     return Unauthorized("Invalid password");
                 }
             }
-            return user;
+            return new UserDTO
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = tokenService.CreateToken(user),
+            };
         }
 
         private async Task<Boolean> DoesEmailExist(string email)
