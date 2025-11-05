@@ -1,6 +1,25 @@
-<h1>{{ title() }}</h1>
-<ul>
-  @for (member of members(); track $index){
-  <li>{{ member.id }} -- {{ member.displayName }}</li>
-  }
-</ul>
+<div class="page-container">
+  <h2 class="page-title">{{ title() }}</h2>
+
+  <div class="cards-grid">
+    @for (member of members(); track member.id) {
+    <mat-card class="user-card" appearance="outlined">
+      <mat-card-header>
+        <div mat-card-avatar class="example-header-image"></div>
+        <mat-card-title>{{ member.displayName }}</mat-card-title>
+        <mat-card-subtitle>Location</mat-card-subtitle>
+      </mat-card-header>
+
+      <img mat-card-image src="/user.png" alt="user avatar" />
+
+      <mat-card-content>
+        <p>Something here...</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button>Learn More</button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+</div>
