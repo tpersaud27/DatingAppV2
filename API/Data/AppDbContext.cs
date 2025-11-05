@@ -7,5 +7,7 @@ namespace API.Data
     {
         // This DbSet represents our table in the Database
         public DbSet<AppUser> Users { get; set; }
+        public DbSet<Member> Members { get; set; }
+        public DbSet<Photo> Photos { get; set; }
     }
 }
