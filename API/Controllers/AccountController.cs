@@ -3,6 +3,7 @@ using System.Text;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,13 +36,7 @@ namespace API.Controllers
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            return new UserDTO
-            {
-                Id = user.Id,
-                DisplayName = user.DisplayName,
-                Email = user.Email,
-                Token = tokenService.CreateToken(user),
-            };
+            return user.ConvertAppUserToUserDto(tokenService);
         }
 
         [HttpPost("login")]
@@ -67,16 +62,10 @@ namespace API.Controllers
                     return Unauthorized("Invalid password");
                 }
             }
-            return new UserDTO
-            {
-                Id = user.Id,
-                DisplayName = user.DisplayName,
-                Email = user.Email,
-                Token = tokenService.CreateToken(user),
-            };
+            return user.ConvertAppUserToUserDto(tokenService);
         }
 
-        private async Task<Boolean> DoesEmailExist(string email)
+        private async Task<bool> DoesEmailExist(string email)
         {
             return await context.Users.AnyAsync(user => user.Email.ToLower() == email.ToLower());
         }
