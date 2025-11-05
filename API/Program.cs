@@ -1,7 +1,10 @@
+using System.Text;
 using API.Data;
 using API.Interfaces;
 using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Addings CORS configuration
 builder.Services.AddCors();
 
+// Authentication
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var tokenKey =
+            builder.Configuration["TokenKey"]
+            ?? throw new Exception("Token key not found - Program.cs");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    });
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
@@ -29,6 +49,10 @@ app.UseCors(options =>
         .AllowAnyMethod()
         .WithOrigins("http://localhost:4200", "https://localhost:4200")
 );
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
