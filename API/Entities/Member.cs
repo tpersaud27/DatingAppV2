@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace API.Entities
 {
     public class Member
@@ -14,6 +16,7 @@ namespace API.Entities
         public required string Country { get; set; }
 
         // Navigation Property
+        [ForeignKey(nameof(Id))]
         public AppUser User { get; set; } = null!;
     }
 }
