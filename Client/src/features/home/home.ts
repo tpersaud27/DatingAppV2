@@ -1,5 +1,5 @@
-import { RegisterCredentials } from './../../Types/User';
-import { Component, inject, signal } from '@angular/core';
+import { RegisterCredentials, User } from './../../Types/User';
+import { Component, inject, Input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,8 @@ import { Register } from '../account/register/register';
   styleUrl: './home.css',
 })
 export class Home {
+  @Input({ required: true }) membersFromApp: User[] = [];
+
   private dialog = inject(MatDialog);
 
   public showRegister(): void {

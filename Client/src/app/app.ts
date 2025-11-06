@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { Nav } from '../layout/nav/nav';
 import { Home } from '../features/home/home';
 import { AccountService } from '../core/services/account-service';
+import { User } from '../Types/User';
 
 @Component({
   selector: 'app-root',
