@@ -30,6 +30,7 @@ export class Nav {
   private fb = inject(FormBuilder);
 
   public loginForm!: FormGroup;
+  public showPassword = false;
 
   public ngOnInit(): void {
     this.loginForm = this.fb.group({

@@ -1,5 +1,7 @@
+/* Toolbar shell */
 .nav-toolbar {
   padding: 24px;
+  /* top/bottom + left/right */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -12,7 +14,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* LEFT SIDE */
+/* Left side */
 .left-section {
   display: flex;
   align-items: center;
@@ -35,11 +37,10 @@
   opacity: 1;
 }
 
-/* RIGHT SIDE: LOGIN FORM */
+/* Right side: auth form */
 .auth-section {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
 .auth-form {
@@ -48,9 +49,57 @@
   gap: 12px;
 }
 
-/* Make input fields consistent width */
+/* Compact raw matInput fields */
 .auth-input {
-  width: 160px;
+  background: #2a3446;
+  border: none;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: 36px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* focus highlight */
+.auth-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+/* Password input + eye toggle */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper .auth-input {
+  padding-right: 36px;
+  /* space for the eye icon */
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  height: 28px;
+  width: 28px;
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.toggle-eye:hover {
+  color: white;
 }
 
 /* Match button height to inputs */
@@ -59,4 +108,22 @@ button[mat-flat-button] {
   line-height: 36px;
   padding: 0 16px;
   border-radius: 18px;
+}
+
+/* If you ever switch back to mat-form-field in the navbar, keep them compact */
+.nav-toolbar .mat-mdc-form-field {
+  --mdc-filled-text-field-container-height: 36px;
+  --mdc-filled-text-field-content-padding-top: 0;
+  --mdc-filled-text-field-content-padding-bottom: 0;
+}
+
+.nav-toolbar .mat-mdc-form-field-infix {
+  padding: 0 12px !important;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-toolbar .mat-mdc-form-field-subscript-wrapper {
+  display: none;
 }
