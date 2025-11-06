@@ -29,9 +29,8 @@ import { AccountService } from '../../core/services/account-service';
 })
 export class Nav {
   private formBuilder = inject(FormBuilder);
-  private accountService = inject(AccountService);
+  public accountService = inject(AccountService);
 
-  public loggedIn = signal(false);
   public loginForm!: FormGroup;
   public showPassword = false;
 
@@ -47,9 +46,7 @@ export class Nav {
 
     const userCredentials = this.loginForm.value;
     this.accountService.login(userCredentials).subscribe({
-      next: (response) => {
-        this.loggedIn.set(true);
-      },
+      next: (response) => {},
       error: (error) => {
         alert(error.message);
       },
@@ -60,6 +57,6 @@ export class Nav {
   public logout(): void {
     // Clear form after user logging out
     this.loginForm.reset();
-    this.loggedIn.set(false);
+    this.accountService.logout();
   }
 }
