@@ -1,18 +1,18 @@
 .nav-toolbar {
-  padding: 12px 24px;
-  /* top/bottom and left/right padding */
+  padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* ensures vertical centering */
+  /* vertical centering */
   min-height: 72px;
-  /* gives toolbar a proper height */
+
   background: #1c2533;
   /* modern deep navy */
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* LEFT SIDE */
 .left-section {
   display: flex;
   align-items: center;
@@ -35,9 +35,10 @@
   opacity: 1;
 }
 
+/* RIGHT SIDE: LOGIN FORM */
 .auth-section {
   display: flex;
-  align-items: center; /* vertically centers form fields */
+  align-items: center;
   gap: 12px;
 }
 
@@ -45,4 +46,17 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Make input fields consistent width */
+.auth-input {
+  width: 160px;
+}
+
+/* Match button height to inputs */
+button[mat-flat-button] {
+  height: 36px;
+  line-height: 36px;
+  padding: 0 16px;
+  border-radius: 18px;
 }

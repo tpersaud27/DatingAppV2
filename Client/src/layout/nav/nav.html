@@ -26,14 +26,12 @@
 
   <div class="auth-section">
     <form [formGroup]="loginForm" (ngSubmit)="login()" class="auth-form">
-      <mat-form-field appearance="fill" class="auth-input">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" />
+      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="auth-input">
+        <input matInput formControlName="email" placeholder="Email" />
       </mat-form-field>
 
-      <mat-form-field appearance="fill" class="auth-input">
-        <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password" />
+      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="auth-input">
+        <input matInput formControlName="password" type="password" placeholder="Password" />
       </mat-form-field>
 
       <button mat-flat-button color="accent" type="submit">Login</button>
