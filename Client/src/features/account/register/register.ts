@@ -11,6 +11,8 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { AccountService } from '../../../core/services/account-service';
+import { RegisterCredentials } from '../../../Types/User';
 
 @Component({
   selector: 'app-register',
@@ -28,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
 export class Register {
   private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<Register, any>);
+  private accountService = inject(AccountService);
 
   public hidePassword = signal(true);
   public submitting = signal(false);
@@ -52,9 +55,20 @@ export class Register {
     if (this.registerForm.invalid) return;
 
     this.submitting.set(true);
-    // Send back payload
+    // Send payload to API
     const { confirmPassword, ...payload } = this.registerForm.value;
-    this.dialogRef.close(payload);
+    this.accountService.register(payload as RegisterCredentials).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.dialogRef.close(payload);
+      },
+      error: (error) => {
+        console.log(error);
+      },
+      complete: () => {
+        console.log('User completed registration.');
+      },
+    });
   }
 
   public closeRegisterForm(): void {
