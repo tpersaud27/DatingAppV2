@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import {
   FormBuilder,
   FormGroup,
@@ -19,23 +19,24 @@ import { AccountService } from '../../core/services/account-service';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
+    MatMenuModule,
   ],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
 })
 export class Nav {
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
 
+  public loggedIn = signal(false);
   public loginForm!: FormGroup;
   public showPassword = false;
 
   public ngOnInit(): void {
-    this.loginForm = this.fb.group({
+    this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
@@ -47,12 +48,18 @@ export class Nav {
     const userCredentials = this.loginForm.value;
     this.accountService.login(userCredentials).subscribe({
       next: (response) => {
-        console.log(response);
+        this.loggedIn.set(true);
       },
       error: (error) => {
         alert(error.message);
       },
-      complete: () => console.log('Completed the http request'),
+      complete: () => console.log('Completed the login http request'),
     });
+  }
+
+  public logout(): void {
+    // Clear form after user logging out
+    this.loginForm.reset();
+    this.loggedIn.set(false);
   }
 }

@@ -127,3 +127,34 @@ button[mat-flat-button] {
 .nav-toolbar .mat-mdc-form-field-subscript-wrapper {
   display: none;
 }
+
+.user-menu button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  text-transform: none;
+  font-weight: 500;
+  padding: 4px 12px;
+}
+
+mat-menu {
+  min-width: 160px;
+}
+
+mat-menu button.mat-menu-item mat-icon {
+  margin-right: 8px;
+}
+
+.avatar-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  /* Makes it circular */
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.user-name {
+  margin-left: 8px;
+}

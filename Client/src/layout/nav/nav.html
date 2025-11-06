@@ -28,6 +28,14 @@
   </div>
 
   <div class="auth-section">
+    @if(loggedIn()){
+    <div class="user-menu">
+      <button mat-button [matMenuTriggerFor]="profileMenu">
+        <img src="/user.png" alt="avatar" class="avatar-icon" />
+        <span class="user-name">Name</span>
+      </button>
+    </div>
+    } @else{
     <form [formGroup]="loginForm" (ngSubmit)="login()" class="auth-form" autocomplete="on">
       <input
         matInput
@@ -63,5 +71,18 @@
 
       <button mat-flat-button color="accent" type="submit">Login</button>
     </form>
+    }
   </div>
 </mat-toolbar>
+
+<!-- Dropdown Menu -->
+<mat-menu #profileMenu="matMenu">
+  <button mat-menu-item>
+    <mat-icon>edit</mat-icon>
+    Edit Profile
+  </button>
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Logout
+  </button>
+</mat-menu>
