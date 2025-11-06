@@ -11,6 +11,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { AccountService } from '../../core/services/account-service';
 
 @Component({
   selector: 'app-nav',
@@ -28,6 +29,7 @@ import {
 })
 export class Nav {
   private fb = inject(FormBuilder);
+  private accountService = inject(AccountService);
 
   public loginForm!: FormGroup;
   public showPassword = false;
@@ -42,7 +44,15 @@ export class Nav {
   public login(): void {
     if (this.loginForm.invalid) return;
 
-    const creds = this.loginForm.value;
-    console.log('Logging in with:', creds);
+    const userCredentials = this.loginForm.value;
+    this.accountService.login(userCredentials).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (error) => {
+        alert(error.message);
+      },
+      complete: () => console.log('Completed the http request'),
+    });
   }
 }
