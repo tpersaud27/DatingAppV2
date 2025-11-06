@@ -1,10 +1,14 @@
 .nav-toolbar {
-  padding: 12px 24px; /* top/bottom and left/right padding */
+  padding: 12px 24px;
+  /* top/bottom and left/right padding */
   display: flex;
   justify-content: space-between;
-  align-items: center; /* ensures vertical centering */
-  min-height: 72px; /* gives toolbar a proper height */
-  background: #1c2533; /* modern deep navy */
+  align-items: center;
+  /* ensures vertical centering */
+  min-height: 72px;
+  /* gives toolbar a proper height */
+  background: #1c2533;
+  /* modern deep navy */
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
@@ -26,7 +30,10 @@
   color: white;
   opacity: 0.85;
 }
-.nav-links a:hover { opacity: 1; }
+
+.nav-links a:hover {
+  opacity: 1;
+}
 
 .auth-section {
   display: flex;
@@ -34,46 +41,8 @@
   gap: 12px;
 }
 
-/* ---------- Compact, centered Material inputs (MDC) ---------- */
-/* Works for appearance="fill" */
-.auth-section .mat-mdc-form-field {
-  /* Compact height */
-  --mdc-filled-text-field-container-height: 40px;
-
-  /* Optional: compact padding & smaller label text */
-  --mdc-filled-text-field-content-padding-top: 6px;
-  --mdc-filled-text-field-content-padding-bottom: 6px;
-
-  /* Colors on dark toolbar (tweak as you like) */
-  --mdc-filled-text-field-container-color: #2a3446;
-  --mdc-filled-text-field-input-text-color: #ffffff;
-  --mdc-filled-text-field-label-text-color: rgba(255, 255, 255, 0.85);
-  --mdc-filled-text-field-active-indicator-color: rgba(255, 255, 255, 0.18);
-  --mdc-filled-text-field-focus-active-indicator-color: rgba(255, 255, 255, 0.28);
-  --mdc-filled-text-field-hover-active-indicator-color: rgba(255, 255, 255, 0.24);
-
-  margin: 0; /* remove any default margins in header */
-}
-
-/* Remove hint/error line space so the field doesn't sit high */
-.auth-section .mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
-
-/* (Optional) tight infix padding; keeps text vertically centered */
-.auth-section .mat-mdc-form-field-infix {
-  padding: 0 12px !important;
-}
-
-/* Size the inputs for a neat row */
-.auth-section .auth-input {
-  width: 160px;
-}
-
-/* Match button height to fields */
-button[mat-flat-button] {
-  height: 40px;
-  line-height: 40px;
-  padding: 0 18px;
-  border-radius: 20px;
+.auth-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
