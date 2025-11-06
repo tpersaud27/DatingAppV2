@@ -1,0 +1,35 @@
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  display: grid;
+  place-items: center;
+}
+
+.hero-icon {
+  font-size: 120px;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  margin-bottom: 16px;
+  /* Purple gradient fill */
+  background: linear-gradient(180deg, #7b5bd6, #4b2e9f);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-title {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+}
