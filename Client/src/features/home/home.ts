@@ -13,8 +13,6 @@ import { Register } from '../account/register/register';
   styleUrl: './home.css',
 })
 export class Home {
-  @Input({ required: true }) membersFromApp: User[] = [];
-
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 

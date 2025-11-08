@@ -5,13 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { Nav } from '../layout/nav/nav';
-import { Home } from '../features/home/home';
 import { AccountService } from '../core/services/account-service';
-import { User } from '../Types/User';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, MatCardModule, MatListModule, MatButtonModule, Nav, Home],
+  imports: [CommonModule, MatCardModule, MatListModule, MatButtonModule, Nav, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
