@@ -12,7 +12,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
-import { RouterLink, RouterLinkActive } from "@angular/router";
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
@@ -25,13 +25,14 @@ import { RouterLink, RouterLinkActive } from "@angular/router";
     ReactiveFormsModule,
     MatMenuModule,
     RouterLink,
-    RouterLinkActive
-],
+    RouterLinkActive,
+  ],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
 })
 export class Nav {
   private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
   public accountService = inject(AccountService);
 
   public loginForm!: FormGroup;
@@ -60,6 +61,9 @@ export class Nav {
   public logout(): void {
     // Clear form after user logging out
     this.loginForm.reset();
+    // Remove user from local storage
     this.accountService.logout();
+    // Redirect user to home screen after logging out
+    this.router.navigateByUrl('/');
   }
 }
