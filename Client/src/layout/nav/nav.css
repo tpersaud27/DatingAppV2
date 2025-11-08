@@ -7,8 +7,7 @@
   align-items: center;
   /* vertical centering */
   min-height: 72px;
-
-  background: #1c2533;
+  background: #94b3e4;
   /* modern deep navy */
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -29,7 +28,6 @@
 .nav-links a {
   margin-left: 12px;
   text-decoration: none;
-  color: white;
   opacity: 0.85;
 }
 
@@ -157,4 +155,9 @@ mat-menu button.mat-menu-item mat-icon {
 
 .user-name {
   margin-left: 8px;
+}
+
+.active-btn {
+  background-color: #3f51b5;
+  color: white !important; /* Make the text readable */
 }

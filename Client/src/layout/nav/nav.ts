@@ -12,6 +12,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
+import { RouterLink, RouterLinkActive } from "@angular/router";
 
 @Component({
   selector: 'app-nav',
@@ -23,7 +24,9 @@ import { AccountService } from '../../core/services/account-service';
     FormsModule,
     ReactiveFormsModule,
     MatMenuModule,
-  ],
+    RouterLink,
+    RouterLinkActive
+],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
 })

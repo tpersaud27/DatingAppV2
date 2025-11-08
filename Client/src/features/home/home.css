@@ -11,10 +11,6 @@
   height: 120px;
   line-height: 120px;
   margin-bottom: 16px;
-  /* Purple gradient fill */
-  background: linear-gradient(180deg, #7b5bd6, #4b2e9f);
-  -webkit-background-clip: text;
-  color: transparent;
 }
 
 .hero-title {
