@@ -62,7 +62,11 @@ export class Nav {
         });
       },
       error: (error) => {
-        alert(error.message);
+        this.snackBar.open(`Error: ${error.error}`, 'Close', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
       },
       complete: () => console.log('Completed the login http request'),
     });
