@@ -13,6 +13,7 @@ import {
 } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-nav',
@@ -33,6 +34,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 export class Nav {
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
   public accountService = inject(AccountService);
 
   public loginForm!: FormGroup;
@@ -50,7 +52,15 @@ export class Nav {
 
     const userCredentials = this.loginForm.value;
     this.accountService.login(userCredentials).subscribe({
-      next: (response) => {},
+      next: () => {
+        // After the user logs in we navigate them to the members page
+        this.router.navigateByUrl('/members');
+        this.snackBar.open('Successfully logged in', 'Close', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      },
       error: (error) => {
         alert(error.message);
       },
@@ -65,5 +75,10 @@ export class Nav {
     this.accountService.logout();
     // Redirect user to home screen after logging out
     this.router.navigateByUrl('/');
+    this.snackBar.open('Successfully logged out', 'Close', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
 }

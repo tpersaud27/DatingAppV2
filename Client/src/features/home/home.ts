@@ -29,7 +29,7 @@ export class Home {
         if (data) {
           this.snackBar.open('Successfully registered', 'Close', {
             duration: 5000,
-            horizontalPosition: 'right',
+            horizontalPosition: 'center',
             verticalPosition: 'bottom',
           });
         }
