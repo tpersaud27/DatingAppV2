@@ -2,7 +2,7 @@ import { CanActivateFn } from '@angular/router';
 import { AccountService } from '../services/account-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { inject } from '@angular/core';
-import { SnackBar } from '../services/snack-bar';
+import { SnackBar } from '../services/snack-bar-service';
 
 export const authGuard: CanActivateFn = () => {
   const accountService = inject(AccountService);

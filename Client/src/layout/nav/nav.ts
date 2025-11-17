@@ -13,7 +13,7 @@ import {
 } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { SnackBar } from '../../core/services/snack-bar';
+import { SnackBar } from '../../core/services/snack-bar-service';
 
 @Component({
   selector: 'app-nav',

@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Register } from '../account/register/register';
-import { SnackBar } from '../../core/services/snack-bar';
+import { SnackBar } from '../../core/services/snack-bar-service';
 
 @Component({
   selector: 'app-home',
