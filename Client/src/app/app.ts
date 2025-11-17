@@ -23,8 +23,6 @@ export class App implements OnInit {
   protected members = signal<any>([]);
 
   ngOnInit(): void {
-    this.setCurrentUser();
-
     this.http.get('https://localhost:5001/api/members').subscribe({
       next: (response) => {
         this.members.set(response);
@@ -35,15 +33,5 @@ export class App implements OnInit {
       },
       complete: () => console.log('Completed the http request'),
     });
-  }
-
-  // This is primarily used for when the user refreshes the page but is still logged in
-  public setCurrentUser(): void {
-    const userString = localStorage.getItem('user');
-    if (!userString) return;
-
-    // If we have the user
-    const user = JSON.parse(userString);
-    this.accountService.currentUser.set(user);
   }
 }
