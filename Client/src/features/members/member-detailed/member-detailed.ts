@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MemberService } from '../../../core/services/member-service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { Observable, of } from 'rxjs';
+import { filter, Observable, of } from 'rxjs';
 import { Member } from '../../../Types/Member';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,9 +21,18 @@ export class MemberDetailed implements OnInit {
   private router = inject(Router);
 
   public member$?: Observable<Member | null>;
+  public title = signal<string | undefined>('Profile');
 
   ngOnInit() {
     this.member$ = this.loadMember();
+    this.title.set(this.route.firstChild?.snapshot?.title);
+
+    // listen to router events to get the child component name so we can update the title details
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe({
+      next: () => {
+        this.title.set(this.route.firstChild?.snapshot?.title);
+      },
+    });
   }
 
   // Getting the member id to load their details

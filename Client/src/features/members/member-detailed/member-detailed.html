@@ -41,12 +41,7 @@
 
         <!-- Vertical nav links -->
         <mat-nav-list class="side-nav">
-          <a
-            mat-list-item
-            routerLink="profile"
-            routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
+          <a mat-list-item routerLink="profile" routerLinkActive="active-link">
             <mat-icon matListItemIcon>person</mat-icon>
             <span matListItemTitle>Profile</span>
           </a>
@@ -70,7 +65,7 @@
           <span>Like</span>
         </button>
 
-        <button mat-stroked-button color="primary" class="back-btn" (click)="onBack()">
+        <button mat-raised-button color="primary" class="back-btn" (click)="onBack()">
           <mat-icon>arrow_back</mat-icon>
           <span>Go Back</span>
         </button>
@@ -82,7 +77,7 @@
   <div class="right-column">
     <mat-card class="content-card" appearance="outlined">
       <mat-card-header>
-        <mat-card-title>{{ member.displayName }}'s Profile</mat-card-title>
+        <mat-card-title>{{ member.displayName }}'s {{ title() }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <router-outlet></router-outlet>

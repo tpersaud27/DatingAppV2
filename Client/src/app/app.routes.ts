@@ -48,7 +48,7 @@ export const routes: Routes = [
           {
             path: 'messages',
             component: MemberMessages,
-            title: 'messages',
+            title: 'Messages',
           },
         ],
       },
