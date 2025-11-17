@@ -1,11 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MemberService } from '../../../core/services/member-service';
+import { Observable } from 'rxjs';
+import { Member } from '../../../Types/Member';
+import { AsyncPipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-members-list',
-  imports: [],
+  imports: [AsyncPipe, MatCardModule, MatListModule, MatButtonModule],
   templateUrl: './members-list.html',
   styleUrl: './members-list.css',
 })
 export class MembersList {
+  public memberService = inject(MemberService);
+  public members$: Observable<Member[]>;
 
+  constructor() {
+    this.members$ = this.memberService.getMembers();
+  }
 }

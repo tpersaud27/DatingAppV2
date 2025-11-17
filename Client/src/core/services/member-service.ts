@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
@@ -12,12 +13,12 @@ export class MemberService {
   private baseUrl = environment.apiUrl;
   private accountService = inject(AccountService);
 
-  public getMembers(): void {
-    this.http.get<Member[]>(this.baseUrl + 'members', this.getHttpOptions());
+  public getMembers(): Observable<Member[]> {
+    return this.http.get<Member[]>(this.baseUrl + 'members', this.getHttpOptions());
   }
 
-  public getMember(id: string): void {
-    this.http.get<Member[]>(this.baseUrl + 'members/' + id, this.getHttpOptions());
+  public getMember(id: string): Observable<Member> {
+    return this.http.get<Member>(this.baseUrl + 'members/' + id, this.getHttpOptions());
   }
 
   private getHttpOptions() {
