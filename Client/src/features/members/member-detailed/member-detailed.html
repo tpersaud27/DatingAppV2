@@ -43,7 +43,7 @@
         <mat-nav-list class="side-nav">
           <a
             mat-list-item
-            routerLink="."
+            routerLink="profile"
             routerLinkActive="active-link"
             [routerLinkActiveOptions]="{ exact: true }"
           >
@@ -83,19 +83,9 @@
     <mat-card class="content-card" appearance="outlined">
       <mat-card-header>
         <mat-card-title>{{ member.displayName }}'s Profile</mat-card-title>
-        <mat-card-subtitle>Overview</mat-card-subtitle>
       </mat-card-header>
-
       <mat-card-content>
-        <p>
-          Here you can render more detailed information about {{ member.displayName }}, such as
-          extended bio, interests, or compatibility sections.
-        </p>
-
-        <p>
-          You can replace this with a <code>&lt;router-outlet&gt;</code> to make
-          <strong>Profile / Photos / Messages</strong> real child routes.
-        </p>
+        <router-outlet></router-outlet>
       </mat-card-content>
     </mat-card>
   </div>

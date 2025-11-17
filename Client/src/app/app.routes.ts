@@ -8,6 +8,9 @@ import { authGuard } from '../core/guards/auth-guard';
 import { TestErrors } from '../features/test-errors/test-errors';
 import { NotFound } from '../shared/errors/not-found/not-found';
 import { ServerError } from '../shared/errors/server-error/server-error';
+import { MemberProfile } from '../features/members/member-profile/member-profile';
+import { MemberPhotos } from '../features/members/member-photos/member-photos';
+import { MemberMessages } from '../features/members/member-messages/member-messages';
 
 export const routes: Routes = [
   {
@@ -26,6 +29,28 @@ export const routes: Routes = [
       {
         path: 'members/:id',
         component: MemberDetailed,
+        children: [
+          {
+            path: '',
+            redirectTo: 'profile',
+            pathMatch: 'full',
+          },
+          {
+            path: 'profile',
+            component: MemberProfile,
+            title: 'Profile',
+          },
+          {
+            path: 'photos',
+            component: MemberPhotos,
+            title: 'Photos',
+          },
+          {
+            path: 'messages',
+            component: MemberMessages,
+            title: 'messages',
+          },
+        ],
       },
       {
         path: 'lists',
