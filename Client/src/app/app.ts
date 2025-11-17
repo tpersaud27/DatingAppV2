@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { Nav } from '../layout/nav/nav';
-import { AccountService } from '../core/services/account-service';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -17,7 +16,6 @@ import { RouterOutlet } from '@angular/router';
 export class App implements OnInit {
   // Note: This is a new way of dependency injection
   private http = inject(HttpClient);
-  private accountService = inject(AccountService);
 
   protected readonly title = signal('Dating App');
   protected members = signal<any>([]);
