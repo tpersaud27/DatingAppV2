@@ -1,0 +1,133 @@
+/* member-detailed.css */
+
+.page-container {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* LEFT COLUMN */
+.left-column {
+  flex: 0 0 25%;
+  min-width: 260px;
+}
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Avatar styling */
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0e0e0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tagline + meta info */
+.member-tagline {
+  margin-top: 0.75rem;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.member-meta {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.meta-row mat-icon {
+  font-size: 18px;
+}
+
+/* Side nav */
+.side-nav {
+  margin-top: 0.5rem;
+}
+
+.side-nav a.mat-list-item {
+  border-radius: 8px;
+}
+
+.side-nav a.mat-list-item.active-link {
+  background-color: rgba(63, 81, 181, 0.08);
+  /* primary tint */
+}
+
+/* Card footer buttons */
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+}
+
+.like-btn mat-icon,
+.back-btn mat-icon {
+  margin-right: 0.4rem;
+}
+
+/* RIGHT COLUMN */
+.right-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.content-card {
+  height: 100%;
+}
+
+/* Loading state */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  height: 60vh;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.loading-state mat-icon {
+  font-size: 32px;
+}
+
+/* Responsive behavior */
+@media (max-width: 900px) {
+  .page-container {
+    flex-direction: column;
+  }
+
+  .left-column {
+    flex: 0 0 auto;
+  }
+
+  .card-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
