@@ -2,3 +2,24 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+/* SUCCESS SNACKBAR */
+.green-snackbar .mdc-snackbar__surface {
+  background-color: rgb(65, 252, 134) !important;
+  color: white !important;
+}
+
+.green-snackbar .mdc-button {
+  color: white !important;
+}
+
+/* FAILURE SNACKBAR */
+.red-snackbar .mdc-snackbar__surface {
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+.red-snackbar .mdc-button {
+  color: white !important;
+}

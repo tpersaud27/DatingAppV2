@@ -13,7 +13,7 @@ import {
 } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackBar } from '../../core/services/snack-bar';
 
 @Component({
   selector: 'app-nav',
@@ -34,7 +34,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class Nav {
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private snackBarService = inject(SnackBar);
   public accountService = inject(AccountService);
 
   public loginForm!: FormGroup;
@@ -55,18 +55,10 @@ export class Nav {
       next: () => {
         // After the user logs in we navigate them to the members page
         this.router.navigateByUrl('/members');
-        this.snackBar.open('Successfully logged in', 'Close', {
-          duration: 5000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-        });
+        this.snackBarService.openSuccessSnackBar();
       },
       error: (error) => {
-        this.snackBar.open(`Error: ${error.error}`, 'Close', {
-          duration: 5000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-        });
+        this.snackBarService.openFailureSnackBar();
       },
       complete: () => console.log('Completed the login http request'),
     });
@@ -79,10 +71,6 @@ export class Nav {
     this.accountService.logout();
     // Redirect user to home screen after logging out
     this.router.navigateByUrl('/');
-    this.snackBar.open('Successfully logged out', 'Close', {
-      duration: 5000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
-    });
+    this.snackBarService.openLogoutSnackBar();
   }
 }
