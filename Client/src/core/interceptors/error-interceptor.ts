@@ -2,9 +2,11 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { catchError } from 'rxjs';
 import { SnackBar } from '../services/snack-bar-service';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const snackBarService = inject(SnackBar);
+  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error) => {
@@ -30,6 +32,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
           case 404:
             snackBarService.openErrorSnackBar('Not found', 'Close');
+            router.navigateByUrl('/not-found');
+
             break;
           case 500:
             snackBarService.openErrorSnackBar('Server error', 'Close');
