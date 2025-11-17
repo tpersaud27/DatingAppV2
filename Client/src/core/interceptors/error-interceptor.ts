@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { catchError } from 'rxjs';
 import { SnackBar } from '../services/snack-bar-service';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const snackBarService = inject(SnackBar);
@@ -31,12 +31,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             snackBarService.openErrorSnackBar('Unauthorized', 'Close');
             break;
           case 404:
-            snackBarService.openErrorSnackBar('Not found', 'Close');
             router.navigateByUrl('/not-found');
-
             break;
           case 500:
-            snackBarService.openErrorSnackBar('Server error', 'Close');
+            const navigationExtras: NavigationExtras = { state: { error: error.error } };
+            router.navigateByUrl('/server-error', navigationExtras);
             break;
           default:
             snackBarService.openErrorSnackBar('Something went wrong', 'Close');
