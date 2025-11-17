@@ -11,7 +11,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error) {
         switch (error.status) {
           case 400:
-            snackBarService.openErrorSnackBar(error.error, 'Try again!');
+            if (error.error['errors']) {
+              const modelStateErrors = [];
+              for (const key in error.error['errors']) {
+                if (error.error['errors'][key]) {
+                  // this will push the value of the errors into out modelStateErrors array
+                  modelStateErrors.push(error.error['errors'][key]);
+                }
+              }
+              // We need to flatten the array into one array so we get all the strings
+              throw modelStateErrors.flat();
+            } else {
+              snackBarService.openErrorSnackBar(`${error.error}`, 'Close');
+            }
             break;
           case 401:
             snackBarService.openErrorSnackBar('Unauthorized', 'Close');

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class TestErrors {
   private http = inject(HttpClient);
   baseUrl = 'https://localhost:5001/api';
+  public validationErrors = signal<string[]>([]);
 
   public get404Error() {
     this.http.get(`${this.baseUrl}/buggy/not-found`).subscribe({
@@ -59,6 +60,7 @@ export class TestErrors {
       },
       error: (error) => {
         console.log(error);
+        this.validationErrors.set(error);
       },
     });
   }
