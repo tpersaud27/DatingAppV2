@@ -20,11 +20,15 @@ export class MemberDetailed implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  public member$?: Observable<Member | null>;
+  public member = signal<Member | undefined>(undefined);
   public title = signal<string | undefined>('Profile');
 
   ngOnInit() {
-    this.member$ = this.loadMember();
+    // This will give us access to the member object
+    this.route.data.subscribe({
+      next: (data) => this.member.set(data['member']),
+    });
+    // This allowes us to get the child routes title
     this.title.set(this.route.firstChild?.snapshot?.title);
 
     // listen to router events to get the child component name so we can update the title details
@@ -35,16 +39,17 @@ export class MemberDetailed implements OnInit {
     });
   }
 
+  // This code is no longer needed because we are getting the memeber object from the route instead
   // Getting the member id to load their details
-  public loadMember(): Observable<Member | null> {
-    // This is will get us the root parameter that has the key of id
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      return of(null);
-    } else {
-      return this.memberService.getMember(id);
-    }
-  }
+  // public loadMember(): Observable<Member | null> {
+  //   // This is will get us the root parameter that has the key of id
+  //   const id = this.route.snapshot.paramMap.get('id');
+  //   if (!id) {
+  //     return of(null);
+  //   } else {
+  //     return this.memberService.getMember(id);
+  //   }
+  // }
 
   public onLike(member: Member | null): void {
     if (!member) return;

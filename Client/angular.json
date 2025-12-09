@@ -22,6 +22,11 @@
           "skipTests": true,
           "path": "src/core/interceptors"
         }
+        ,
+        "@schematics/angular:resolver": {
+          "skipTests": true,
+          "path": "src"
+        }
       },
       "root": "",
       "sourceRoot": "src",
