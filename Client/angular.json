@@ -21,6 +21,10 @@
         "@schematics/angular:interceptor": {
           "skipTests": true,
           "path": "src/core/interceptors"
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true,
+          "path": "src/core/pipes"
         }
         ,
         "@schematics/angular:resolver": {

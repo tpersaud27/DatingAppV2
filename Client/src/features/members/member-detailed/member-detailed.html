@@ -24,17 +24,17 @@
           @if (member.dateOfBirth) {
           <div class="meta-row">
             <mat-icon>cake</mat-icon>
-            <span>Born {{ member.dateOfBirth }}</span>
+            <span>Age: {{ member.dateOfBirth | age }}</span>
           </div>
           } @if (member.created) {
           <div class="meta-row">
             <mat-icon>event</mat-icon>
-            <span>Joined {{ member.created | date : 'longDate' }}</span>
+            <span>Joined: {{ member.created | date : 'longDate' }}</span>
           </div>
           } @if (member.lastActive) {
           <div class="meta-row">
             <mat-icon>schedule</mat-icon>
-            <span>Last Active {{ member.lastActive | date : 'longDate' }}</span>
+            <span>Last Active: {{ member.lastActive | date : 'longDate' }}</span>
           </div>
           }
         </div>

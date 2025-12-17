@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe, TitleCasePipe } from '@angular/common';
+import { AgePipe } from '../../../core/pipes/age-pipe';
 
 @Component({
   selector: 'app-member-detailed',
@@ -21,6 +22,7 @@ import { DatePipe, TitleCasePipe } from '@angular/common';
     MatDividerModule,
     DatePipe,
     TitleCasePipe,
+    AgePipe,
   ],
   templateUrl: './member-detailed.html',
   styleUrl: './member-detailed.css',
