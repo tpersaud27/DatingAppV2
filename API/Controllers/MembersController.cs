@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +36,41 @@ namespace API.Controllers
         public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
         {
             return Ok(await memberRepository.GetPhotosForMemberAsync(id));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateMember(MemberUpdateDTO memberUpdateDTO)
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (memberId == null)
+            {
+                return BadRequest("No Id found in token!");
+            }
+
+            var member = await memberRepository.GetMemberByIdAsync(memberId);
+
+            if (member == null)
+            {
+                return BadRequest("Could not get member");
+            }
+
+            member.DisplayName = memberUpdateDTO.DisplayName ?? member.DisplayName;
+            member.Description = memberUpdateDTO.Description ?? member.Description;
+            member.City = memberUpdateDTO.City ?? member.City;
+            member.Country = memberUpdateDTO.Country ?? member.Country;
+
+            // This is optional because we will be checking if the member has changed
+            // We will check on the front-end but this is good to have anyways
+            memberRepository.Update(member);
+
+            // Saving the changes to our DB
+            if (await memberRepository.SaveAllAsync())
+            {
+                return NoContent();
+            }
+
+            return BadRequest("Failed to update member");
         }
     }
 }
