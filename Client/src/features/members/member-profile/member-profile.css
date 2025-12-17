@@ -1,0 +1,29 @@
+.profile-details {
+  padding: 12px 4px;
+}
+
+.member-since {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.member-since .label {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.profile-details h3 {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #4b5563;
+  max-width: 90%;
+}
