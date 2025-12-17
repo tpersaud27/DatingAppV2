@@ -60,6 +60,8 @@ namespace API.Controllers
             member.City = memberUpdateDTO.City ?? member.City;
             member.Country = memberUpdateDTO.Country ?? member.Country;
 
+            member.User.DisplayName = memberUpdateDTO.DisplayName ?? member.User.DisplayName;
+
             // This is optional because we will be checking if the member has changed
             // We will check on the front-end but this is good to have anyways
             memberRepository.Update(member);

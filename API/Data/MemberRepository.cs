@@ -11,6 +11,13 @@ namespace API.Data
             return await context.Members.FindAsync(id);
         }
 
+        // This will be used for getting the member when we need to update other entities like AppUser
+        public async Task<Member?> GetMemberForUpdate(string id)
+        {
+            // This will also return for us the User object for us
+            return await context.Members.Include(x => x.User).SingleOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<IReadOnlyList<Member>> GetMembersAsync()
         {
             return await context.Members.ToListAsync();
