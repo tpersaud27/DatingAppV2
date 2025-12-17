@@ -18,7 +18,7 @@
         <div class="member-meta">
           <div class="meta-row">
             <mat-icon>person</mat-icon>
-            <span>{{ member.gender }}</span>
+            <span>{{ member.gender | titlecase }}</span>
           </div>
 
           @if (member.dateOfBirth) {
