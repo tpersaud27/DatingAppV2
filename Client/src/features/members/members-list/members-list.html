@@ -1,6 +1,7 @@
 <div class="page-container">
   <div class="cards-grid">
-    @for (member of members$ | async; track member.id) {
+    @for (member of members$ | async; track member.id) { @if(member.id !==
+    accountService.currentUser()?.id){
     <mat-card routerLink="/members/{{ member.id }}" class="user-card" appearance="outlined">
       <mat-card-header>
         <img mat-card-avatar [src]="member.imageUrl || '/user.png'" alt="User avatar" />
@@ -18,6 +19,6 @@
         <button mat-button>View Profile</button>
       </mat-card-actions> -->
     </mat-card>
-    }
+    } }
   </div>
 </div>

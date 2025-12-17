@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { AgePipe } from '../../../core/pipes/age-pipe';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-members-list',
@@ -17,6 +18,7 @@ import { AgePipe } from '../../../core/pipes/age-pipe';
 })
 export class MembersList {
   public memberService = inject(MemberService);
+  public accountService = inject(AccountService);
   public members$: Observable<Member[]>;
 
   constructor() {
