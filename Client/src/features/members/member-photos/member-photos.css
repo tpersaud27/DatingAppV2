@@ -1,0 +1,29 @@
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  /* 👈 reduce spacing */
+  padding-top: 8px;
+  /* smaller separation from title */
+}
+
+.photo {
+  width: 100%;
+  /* 👈 critical */
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  /* square thumbnails */
+  object-fit: cover;
+  border-radius: 6px;
+}
+@media (max-width: 900px) {
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
+}

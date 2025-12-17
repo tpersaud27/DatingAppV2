@@ -1,1 +1,7 @@
-<p>member-photos works!</p>
+@if (photos$ | async; as photos) { @if (photos.length > 0) {
+<div class="photo-grid">
+  @for (photo of photos; track photo.id) {
+  <img class="photo" [src]="photo.url" alt="photo of member" />
+  }
+</div>
+} }
