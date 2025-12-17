@@ -29,7 +29,7 @@ import { AccountService } from '../../../core/services/account-service';
   styleUrl: './member-detailed.css',
 })
 export class MemberDetailed implements OnInit {
-  private memberService = inject(MemberService);
+  public memberService = inject(MemberService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private accountService = inject(AccountService);
@@ -40,6 +40,9 @@ export class MemberDetailed implements OnInit {
   public isCurrentUser = computed(() => {
     return this.accountService.currentUser()?.id === this.route.snapshot.paramMap.get('id');
   });
+
+  public editProfile = 'Edit Profile';
+  public cancelEdit = 'Cancel';
 
   ngOnInit() {
     // This will give us access to the member object
@@ -77,5 +80,10 @@ export class MemberDetailed implements OnInit {
 
   public onBack(): void {
     this.router.navigate(['/members']);
+  }
+
+  public onEdit(): void {
+    this.memberService.editMode.update((value) => !value);
+    console.log('Edit mode: ', this.memberService.editMode());
   }
 }
