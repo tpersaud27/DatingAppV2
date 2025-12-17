@@ -77,9 +77,16 @@
   <div class="right-column">
     <mat-card class="content-card" appearance="outlined">
       <mat-card-header>
-        <mat-card-title>{{ member.displayName }}'s {{ title() }}</mat-card-title>
+        <div class="card-header-row">
+          <mat-card-title> {{ member.displayName }}'s {{ title() }} </mat-card-title>
+          @if(isCurrentUser()){
+          <button mat-raised-button color="primary" class="edit-btn">
+            <mat-icon>edit</mat-icon> Edit Profile
+          </button>
+          }
+        </div>
       </mat-card-header>
-      <mat-divider></mat-divider>
+      <mat-divider class="card-divider"></mat-divider>
       <mat-card-content>
         <router-outlet></router-outlet>
       </mat-card-content>

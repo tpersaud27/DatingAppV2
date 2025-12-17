@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MemberService } from '../../../core/services/member-service';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { AgePipe } from '../../../core/pipes/age-pipe';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-detailed',
@@ -31,9 +32,14 @@ export class MemberDetailed implements OnInit {
   private memberService = inject(MemberService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private accountService = inject(AccountService);
 
   public member = signal<Member | undefined>(undefined);
   public title = signal<string | undefined>('Profile');
+  // This signal checks if the user logged in is viewing their profile from the matches tab
+  public isCurrentUser = computed(() => {
+    return this.accountService.currentUser()?.id === this.route.snapshot.paramMap.get('id');
+  });
 
   ngOnInit() {
     // This will give us access to the member object
