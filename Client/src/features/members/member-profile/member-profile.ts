@@ -79,5 +79,7 @@ export class MemberProfile implements OnInit, OnDestroy {
     this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
     // Toggle edit mode back to false
     this.memberService.editMode.set(false);
+
+    console.log('Form Status ', this.editForm);
   }
 }
