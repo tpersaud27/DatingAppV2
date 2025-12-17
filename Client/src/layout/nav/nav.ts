@@ -73,4 +73,8 @@ export class Nav {
     this.router.navigateByUrl('/');
     this.snackBarService.openLogoutSnackBar();
   }
+
+  public editProfile(): void {
+    this.router.navigate([`/members/${this.accountService.currentUser()?.id}/profile`]);
+  }
 }
