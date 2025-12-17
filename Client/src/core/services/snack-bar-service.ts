@@ -42,4 +42,11 @@ export class SnackBar {
       panelClass: ['red-snackbar'],
     });
   }
+
+  openGenericSuccessSnackBar(message: string, action?: string) {
+    this.snackBar.open(message, action, {
+      duration: 3000,
+      panelClass: ['green-snackbar'],
+    });
+  }
 }
