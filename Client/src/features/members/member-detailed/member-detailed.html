@@ -29,12 +29,12 @@
           } @if (member.created) {
           <div class="meta-row">
             <mat-icon>event</mat-icon>
-            <span>Joined {{ member.created }}</span>
+            <span>Joined {{ member.created | date : 'longDate' }}</span>
           </div>
           } @if (member.lastActive) {
           <div class="meta-row">
             <mat-icon>schedule</mat-icon>
-            <span>Last active {{ member.lastActive }}</span>
+            <span>Last Active {{ member.lastActive | date : 'longDate' }}</span>
           </div>
           }
         </div>

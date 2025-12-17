@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-member-detailed',
@@ -18,6 +19,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatListModule,
     RouterModule,
     MatDividerModule,
+    DatePipe
   ],
   templateUrl: './member-detailed.html',
   styleUrl: './member-detailed.css',
