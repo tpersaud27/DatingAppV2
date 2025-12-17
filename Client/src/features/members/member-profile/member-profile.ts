@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  ViewChild,
+  OnDestroy,
+  HostListener,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EditableMemberFields, Member } from '../../../Types/Member';
 import { MemberService } from '../../../core/services/member-service';
@@ -31,7 +39,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class MemberProfile implements OnInit, OnDestroy {
   @ViewChild('editForm') editForm?: NgForm;
-
+  @HostListener('window:beforeunload', ['$event']) notify($event: BeforeUnloadEvent) {
+    if (this.editForm?.dirty) {
+      $event.preventDefault();
+    }
+  }
   public member = signal<Member | undefined>(undefined);
   public memberService = inject(MemberService);
   public snackBarService = inject(SnackBar);
