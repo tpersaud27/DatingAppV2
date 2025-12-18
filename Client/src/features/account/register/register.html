@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Create your account</h2>
 
-<form [formGroup]="registerForm" (ngSubmit)="submitRegisterForm()">
+<form [formGroup]="registerForm" (ngSubmit)="onSubmitRegisterForm()">
   <div mat-dialog-content class="form-grid">
     <mat-form-field appearance="outline" class="span-2">
       <mat-label>Email</mat-label>
@@ -63,7 +63,7 @@
   </div>
 
   <div mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="closeRegisterForm()">Cancel</button>
+    <button mat-button type="button" (click)="onCloseRegisterForm()">Cancel</button>
     <button
       mat-flat-button
       color="primary"

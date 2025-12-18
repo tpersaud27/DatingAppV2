@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
+  FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
   Validators,
@@ -35,14 +36,20 @@ export class Register {
   public hidePassword = signal(true);
   public submitting = signal(false);
 
-  public registerForm = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    displayName: ['', [Validators.required, Validators.minLength(3)]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', [Validators.required]],
-  });
+  public registerForm: FormGroup = this.formBuilder.group({});
 
   constructor() {
+    this.initializeRegisterForm();
+  }
+
+  public initializeRegisterForm(): void {
+    this.registerForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      displayName: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
+    });
+
     const getPassword = () => this.registerForm.get('password');
     const confirm = this.registerForm.get('confirmPassword');
     confirm?.addValidators(this.match(getPassword));
@@ -51,7 +58,7 @@ export class Register {
       ?.valueChanges.subscribe(() => confirm?.updateValueAndValidity());
   }
 
-  public submitRegisterForm(): void {
+  public onSubmitRegisterForm(): void {
     if (this.registerForm.invalid) return;
 
     this.submitting.set(true);
@@ -71,11 +78,13 @@ export class Register {
     });
   }
 
-  public closeRegisterForm(): void {
+  public onCloseRegisterForm(): void {
     this.dialogRef.close();
   }
 
-  private match(other: () => AbstractControl | null) {
+  private match(
+    other: () => AbstractControl | null
+  ): (control: AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       const otherCtrl = other();
       if (!otherCtrl) return null;

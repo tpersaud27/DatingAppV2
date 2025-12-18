@@ -22,6 +22,7 @@ export class MemberService {
     return this.http.get<Member>(this.baseUrl + 'members/' + id).pipe(
       tap((member) => {
         this.member.set(member);
+        console.log('Member loaded:', member);
       })
     );
   }
