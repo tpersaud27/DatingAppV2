@@ -97,11 +97,22 @@ export class MemberPhotos {
     this.uploadProgress.set(percent);
   }
 
-  private onUploadComplete(fileKey: string): void {
-    this.resetUploadState();
-    console.log('Upload complete:', fileKey);
+  private onUploadComplete(fileUrl: string): void {
+    this.uploadService.savePhoto(fileUrl).subscribe({
+      next: () => {
+        this.resetUploadState();
 
-    // optional: call backend to persist photo metadata
+        // 🔄 Refresh photos after successful save
+        const memberId = this.memberService.member()?.id;
+        if (memberId) {
+          this.photos$ = this.memberService.getMemberPhotos(memberId);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to save photo to DB:', error);
+        this.resetUploadState();
+      },
+    });
   }
 
   private resetUploadState(): void {

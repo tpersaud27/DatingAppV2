@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { PresignedUrlResponse } from '../../Types/PhotoUpload';
+import { Photo } from '../../Types/Member';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +37,12 @@ export class PhotoUploadService {
     return this.rawHttp.put<unknown>(uploadUrl, file, {
       reportProgress: true,
       observe: 'events',
+    });
+  }
+
+  public savePhoto(fileUrl: string): Observable<Photo> {
+    return this.http.post<Photo>(this.baseUrl + 'photos', {
+      url: fileUrl,
     });
   }
 }
