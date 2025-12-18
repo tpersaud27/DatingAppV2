@@ -39,8 +39,18 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
+            // Extract S3 key from URL
+            var uri = new Uri(addPhotoDTO.Url);
+            // "/profile-photos/abc123.jpg"
+            var s3Key = uri.AbsolutePath.TrimStart('/');
+
             // This is the new photo entity we will add
-            var photo = new Photo { Url = addPhotoDTO.Url, MemberId = memberId };
+            var photo = new Photo
+            {
+                Url = addPhotoDTO.Url,
+                S3Key = s3Key,
+                MemberId = memberId,
+            };
 
             var savedPhoto = await photoRepository.AddPhotoAsync(photo);
 
@@ -52,6 +62,31 @@ namespace API.Controllers
                     savedPhoto.MemberId,
                 }
             );
+        }
+
+        [HttpDelete("{photoId:int}")]
+        public async Task<IActionResult> DeletePhoto(int photoId)
+        {
+            var photo = await photoRepository.GetPhotoByIdAsync(photoId);
+            if (photo == null)
+                return NotFound();
+
+            // 🔐 Ownership check
+            var currentUserId = User.GetMemberId();
+            if (photo.MemberId != currentUserId)
+                return Forbid();
+
+            // 🪣 Only delete from S3 if it’s an S3-backed photo
+            if (photo.S3Key != "external")
+            {
+                await s3Service.DeletePhotoAsync(photo.S3Key);
+            }
+
+            // 🗑 Remove DB record
+            photoRepository.RemovePhoto(photo);
+            await photoRepository.SaveAllAsync();
+
+            return NoContent();
         }
     }
 }

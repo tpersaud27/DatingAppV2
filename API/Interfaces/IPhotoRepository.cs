@@ -1,4 +1,5 @@
 using API.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Interfaces
 {
@@ -6,5 +7,7 @@ namespace API.Interfaces
     {
         Task<Photo> AddPhotoAsync(Photo photo);
         Task<bool> SaveAllAsync();
+        Task<Photo?> GetPhotoByIdAsync(int photoId);
+        void RemovePhoto(Photo photo);
     }
 }

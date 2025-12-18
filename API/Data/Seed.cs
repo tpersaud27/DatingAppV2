@@ -55,7 +55,14 @@ namespace API.Data
                     },
                 };
 
-                user.Member.Photos.Add(new Photo { Url = member.ImageUrl!, MemberId = member.Id });
+                user.Member.Photos.Add(
+                    new Photo
+                    {
+                        Url = member.ImageUrl!,
+                        S3Key = "external",
+                        MemberId = member.Id,
+                    }
+                );
 
                 context.Users.Add(user);
             }

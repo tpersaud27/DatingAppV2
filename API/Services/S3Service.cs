@@ -45,5 +45,12 @@ namespace API.Services
 
             return new S3PhotoDTO.PresignResponse(uploadUrl, fileUrl);
         }
+
+        public async Task DeletePhotoAsync(string s3Key)
+        {
+            var request = new DeleteObjectRequest { BucketName = _bucketName, Key = s3Key };
+
+            await _s3Client.DeleteObjectAsync(request);
+        }
     }
 }
