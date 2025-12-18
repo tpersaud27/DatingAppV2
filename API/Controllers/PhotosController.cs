@@ -1,12 +1,14 @@
 using API.DTOs;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class PhotosController(IS3Service s3Service) : BaseApiController
     {
-        [HttpPost("presign")]
+        [HttpPost("presign")] // api/photos/presign
         public ActionResult<S3PhotoDTO.PresignResponse> Presign(
             [FromBody] S3PhotoDTO.PresignRequest request
         )
