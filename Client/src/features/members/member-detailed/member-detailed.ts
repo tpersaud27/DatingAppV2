@@ -34,7 +34,6 @@ export class MemberDetailed implements OnInit {
   private router = inject(Router);
   private accountService = inject(AccountService);
 
-  public member = signal<Member | undefined>(undefined);
   public title = signal<string | undefined>('Profile');
   // This signal checks if the user logged in is viewing their profile from the matches tab
   public isCurrentUser = computed(() => {
@@ -45,10 +44,6 @@ export class MemberDetailed implements OnInit {
   public cancelEdit = 'Cancel';
 
   ngOnInit() {
-    // This will give us access to the member object
-    this.route.data.subscribe({
-      next: (data) => this.member.set(data['member']),
-    });
     // This allowes us to get the child routes title
     this.title.set(this.route.firstChild?.snapshot?.title);
 

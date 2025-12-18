@@ -1,13 +1,4 @@
-import {
-  Component,
-  inject,
-  signal,
-  OnInit,
-  ViewChild,
-  OnDestroy,
-  HostListener,
-} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject, OnInit, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { EditableMemberFields, Member } from '../../../Types/Member';
 import { MemberService } from '../../../core/services/member-service';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
@@ -44,7 +35,6 @@ export class MemberProfile implements OnInit, OnDestroy {
       $event.preventDefault();
     }
   }
-  public member = signal<Member | undefined>(undefined);
   public memberService = inject(MemberService);
   public snackBarService = inject(SnackBar);
   public editableMemberFields: EditableMemberFields = {
@@ -54,21 +44,12 @@ export class MemberProfile implements OnInit, OnDestroy {
     country: '',
   };
 
-  private route = inject(ActivatedRoute);
-
-  constructor() {}
-
   public ngOnInit(): void {
-    // Getting access to our member
-    this.route.parent?.data.subscribe((data) => {
-      this.member.set(data['member']);
-    });
-
     this.editableMemberFields = {
-      displayName: this.member()?.displayName || '',
-      description: this.member()?.description || '',
-      city: this.member()?.city || '',
-      country: this.member()?.country || '',
+      displayName: this.memberService.member()?.displayName || '',
+      description: this.memberService.member()?.description || '',
+      city: this.memberService.member()?.city || '',
+      country: this.memberService.member()?.country || '',
     };
   }
 
@@ -81,16 +62,18 @@ export class MemberProfile implements OnInit, OnDestroy {
   }
 
   public onUpdateProfile(): void {
-    if (!this.member()) {
+    if (!this.memberService.member()) {
       return;
     }
 
-    const updatedMember = { ...this.member(), ...this.editableMemberFields };
+    const updatedMember = { ...this.memberService.member(), ...this.editableMemberFields };
     this.memberService.updateMemberDetails(this.editableMemberFields).subscribe({
       next: () => {
         this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
         // Toggle edit mode back to false
         this.memberService.editMode.set(false);
+        // Update the member with the new details
+        this.memberService.member.set(updatedMember as Member);
         // Reset the form with the new updatedMember
         // This resets our dirty flag back to false
         this.editForm?.reset(updatedMember);
