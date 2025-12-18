@@ -86,12 +86,15 @@ export class MemberProfile implements OnInit, OnDestroy {
     }
 
     const updatedMember = { ...this.member(), ...this.editableMemberFields };
-
-    console.log('updatedMember ', updatedMember);
-    this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
-    // Toggle edit mode back to false
-    this.memberService.editMode.set(false);
-
-    console.log('Form Status ', this.editForm);
+    this.memberService.updateMemberDetails(this.editableMemberFields).subscribe({
+      next: () => {
+        this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
+        // Toggle edit mode back to false
+        this.memberService.editMode.set(false);
+        // Reset the form with the new updatedMember
+        // This resets our dirty flag back to false
+        this.editForm?.reset(updatedMember);
+      },
+    });
   }
 }

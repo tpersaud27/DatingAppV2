@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Member, Photo } from '../../Types/Member';
+import { EditableMemberFields, Member, Photo } from '../../Types/Member';
 
 @Injectable({
   providedIn: 'root',
@@ -23,5 +23,9 @@ export class MemberService {
 
   public getMemberPhotos(id: string) {
     return this.http.get<Photo[]>(this.baseUrl + 'members/' + id + '/photos');
+  }
+
+  public updateMemberDetails(member: EditableMemberFields) {
+    return this.http.put(this.baseUrl + 'members', member);
   }
 }
