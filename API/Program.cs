@@ -1,5 +1,7 @@
 using System.Text;
+using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
+using Amazon.SecurityToken;
 using API.Data;
 using API.Extensions;
 using API.Interfaces;
@@ -44,6 +46,7 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 
 // AWS S3 Services
 builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddAWSService<IAmazonSecurityTokenService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
 var app = builder.Build();
