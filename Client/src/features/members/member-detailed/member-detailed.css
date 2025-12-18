@@ -88,8 +88,7 @@
 }
 
 .like-btn mat-icon,
-.back-btn mat-icon,
-.edit-btn mat-icon {
+.back-btn mat-icon {
   margin-right: 0.4rem;
 }
 

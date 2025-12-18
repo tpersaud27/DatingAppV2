@@ -4,4 +4,14 @@
   <img class="photo" [src]="photo.url" alt="photo of member" />
   }
 </div>
+} @else {
+<p>No Photos Available</p>
 } }
+
+<input
+  type="file"
+  #fileInput
+  hidden
+  accept=".png,.jpg,.jpeg,.pdf"
+  (change)="onFileSelected($event)"
+/>
