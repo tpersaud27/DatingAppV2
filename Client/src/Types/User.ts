@@ -16,3 +16,12 @@ export interface RegisterCredentials {
   displayName: string;
   password: string;
 }
+
+export interface ProfileDetails {
+  gender: string;
+  dateOfBirth: Date;
+  city: string;
+  country: string;
+}
+
+export interface RegisterDTO extends RegisterCredentials, ProfileDetails {}

@@ -5,6 +5,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +14,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AccountService } from '../../../core/services/account-service';
-import { RegisterCredentials } from '../../../Types/User';
+import { RegisterCredentials, RegisterDTO } from '../../../Types/User';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-register',
@@ -24,7 +28,10 @@ import { RegisterCredentials } from '../../../Types/User';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatStepperModule,
+    MatDatepickerModule,
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -37,9 +44,11 @@ export class Register {
   public submitting = signal(false);
 
   public registerForm: FormGroup = this.formBuilder.group({});
+  public profileDetailsForm: FormGroup = this.formBuilder.group({});
 
   constructor() {
     this.initializeRegisterForm();
+    this.intializeProfileDetailsForm();
   }
 
   public initializeRegisterForm(): void {
@@ -58,13 +67,25 @@ export class Register {
       ?.valueChanges.subscribe(() => confirm?.updateValueAndValidity());
   }
 
+  public intializeProfileDetailsForm(): void {
+    this.profileDetailsForm = this.formBuilder.group({
+      gender: ['', [Validators.required]],
+      dateOfBirth: ['', [Validators.required, this.minAgeValidator(18)]],
+      city: ['', [Validators.required]],
+      country: ['', [Validators.required]],
+    });
+  }
+
   public onSubmitRegisterForm(): void {
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid || this.profileDetailsForm.invalid) return;
 
     this.submitting.set(true);
     // Send payload to API
-    const { confirmPassword, ...payload } = this.registerForm.value;
-    this.accountService.register(payload as RegisterCredentials).subscribe({
+    const { confirmPassword, ...registerCredentials } = this.registerForm.value;
+    const { ...profileDetails } = this.profileDetailsForm.value;
+    const payload = { ...registerCredentials, ...profileDetails };
+
+    this.accountService.register(payload as RegisterDTO).subscribe({
       next: (response) => {
         console.log(response);
         this.dialogRef.close(payload);
@@ -89,6 +110,26 @@ export class Register {
       const otherCtrl = other();
       if (!otherCtrl) return null;
       return control.value === otherCtrl.value ? null : { mismatch: true };
+    };
+  }
+
+  private minAgeValidator(minAge: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null; // let required validator handle empty
+      }
+
+      const birthDate = new Date(control.value);
+      const today = new Date();
+
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
   }
 }
