@@ -25,12 +25,23 @@ namespace API.Controllers
             // This is better than waiting for garbage collection to clean up at a future time
             using var hmac = new HMACSHA512();
 
+            // This is creating a new user
             var user = new AppUser
             {
                 DisplayName = registerDTO.DisplayName,
                 Email = registerDTO.Email,
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password)),
                 PasswordSalt = hmac.Key,
+
+                // We also need to create a new member as well
+                Member = new Member
+                {
+                    DisplayName = registerDTO.DisplayName,
+                    DateOfBirth = registerDTO.DateOfBirth,
+                    Gender = registerDTO.Gender,
+                    City = registerDTO.City,
+                    Country = registerDTO.Country,
+                },
             };
 
             context.Users.Add(user);

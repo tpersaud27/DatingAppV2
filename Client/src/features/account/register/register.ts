@@ -82,10 +82,14 @@ export class Register {
     this.submitting.set(true);
     // Send payload to API
     const { confirmPassword, ...registerCredentials } = this.registerForm.value;
-    const { ...profileDetails } = this.profileDetailsForm.value;
-    const payload = { ...registerCredentials, ...profileDetails };
+    const { dateOfBirth, ...profileDetails } = this.profileDetailsForm.value;
+    const payload: RegisterDTO = {
+      ...registerCredentials,
+      ...profileDetails,
+      dateOfBirth: this.toDateOnly(dateOfBirth),
+    };
 
-    this.accountService.register(payload as RegisterDTO).subscribe({
+    this.accountService.register(payload).subscribe({
       next: (response) => {
         console.log(response);
         this.dialogRef.close(payload);
@@ -131,5 +135,9 @@ export class Register {
 
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
+  }
+
+  private toDateOnly(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 }
