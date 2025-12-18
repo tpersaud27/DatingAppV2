@@ -72,38 +72,50 @@ export class MemberPhotos {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
 
-    const file: File = input.files[0];
-    console.log('Selected file:', file);
+    const files = Array.from(input.files);
 
-    this.uploadFile(file);
+    this.uploadMultipleFiles(files);
+
+    // reset input so same file can be selected again later
+    input.value = '';
   }
 
-  private uploadFile(file: File): void {
+  private uploadMultipleFiles(files: File[]): void {
     this.isUploading.set(true);
 
-    this.uploadService.getPresignedUrl(file).subscribe({
-      next: (response: PresignedUrlResponse) => {
-        this.uploadToS3(response, file);
-        console.log('Presigned URL response:', response);
-      },
-      error: () => this.resetUploadState(),
+    let completed = 0;
+    const total = files.length;
+
+    files.forEach((file) => {
+      this.uploadService.getPresignedUrl(file).subscribe({
+        next: (response) => {
+          this.uploadToS3(response, file, () => {
+            completed++;
+            this.uploadProgress.set(Math.round((completed / total) * 100));
+
+            if (completed === total) {
+              this.resetUploadState();
+            }
+          });
+        },
+        error: () => {
+          console.error('Failed to get presigned URL');
+          completed++;
+        },
+      });
     });
   }
 
-  private uploadToS3(response: PresignedUrlResponse, file: File): void {
+  private uploadToS3(response: PresignedUrlResponse, file: File, onComplete: () => void): void {
     this.uploadService.uploadToS3(response.uploadUrl, file).subscribe({
       next: (event: HttpEvent<unknown>) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          this.updateProgress(event);
-        }
-
         if (event.type === HttpEventType.Response) {
-          this.onUploadComplete(response.fileUrl);
+          this.onUploadComplete(response.fileUrl, onComplete);
         }
       },
       error: (error) => {
         console.error('Upload to S3 failed:', error);
-        this.resetUploadState();
+        onComplete();
       },
     });
   }
@@ -124,7 +136,7 @@ export class MemberPhotos {
     this.uploadProgress.set(percent);
   }
 
-  private onUploadComplete(fileUrl: string): void {
+  private onUploadComplete(fileUrl: string, onComplete: () => void): void {
     this.uploadService.savePhoto(fileUrl).subscribe({
       next: () => {
         const memberId = this.memberService.member()?.id;
@@ -133,12 +145,10 @@ export class MemberPhotos {
             next: (photos) => this.photos.set(photos),
           });
         }
-
-        this.resetUploadState();
       },
       error: (error) => {
         console.error('Failed to save photo to DB:', error);
-        this.resetUploadState();
+        onComplete();
       },
     });
   }
