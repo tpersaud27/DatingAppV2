@@ -36,9 +36,9 @@ export class Register {
   public submitting = signal(false);
 
   public registerForm = this.formBuilder.group({
-    email: ['', [Validators.required]],
-    displayName: ['', [Validators.required]],
-    password: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    displayName: ['', [Validators.required, Validators.minLength(3)]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
   });
 
