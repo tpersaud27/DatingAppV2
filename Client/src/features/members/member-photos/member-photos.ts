@@ -8,10 +8,12 @@ import { PhotoUploadService } from '../../../core/services/photo-upload-service'
 import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
 import { PresignedUrlResponse } from '../../../Types/PhotoUpload';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-member-photos',
-  imports: [AsyncPipe, MatProgressBarModule],
+  imports: [AsyncPipe, MatProgressBarModule, MatIconModule, MatButtonModule],
   templateUrl: './member-photos.html',
   styleUrl: './member-photos.css',
 })
@@ -38,6 +40,26 @@ export class MemberPhotos {
         this.fileInput.nativeElement.click();
         this.uploadService.resetFilePicker();
       }
+    });
+  }
+
+  public onDeletePhoto(photo: Photo): void {
+    console.log('Deleting photo:', photo);
+    const confirmed = confirm('Delete this photo?');
+
+    if (!confirmed) return;
+
+    this.uploadService.deletePhoto(photo.id).subscribe({
+      next: () => {
+        // Refresh photos after delete
+        const memberId = this.memberService.member()?.id;
+        if (memberId) {
+          this.photos$ = this.memberService.getMemberPhotos(memberId);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to delete photo', err);
+      },
     });
   }
 

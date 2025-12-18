@@ -45,4 +45,8 @@ export class PhotoUploadService {
       url: fileUrl,
     });
   }
+
+  public deletePhoto(photoId: number) {
+    return this.http.delete(this.baseUrl + `photos/${photoId}`);
+  }
 }
