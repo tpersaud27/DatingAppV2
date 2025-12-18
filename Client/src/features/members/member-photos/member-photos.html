@@ -15,3 +15,7 @@
   accept=".png,.jpg,.jpeg,.pdf"
   (change)="onFileSelected($event)"
 />
+
+@if (isUploading()) {
+<mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0"></mat-progress-bar>
+}
