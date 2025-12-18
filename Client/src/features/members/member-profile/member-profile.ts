@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-profile',
@@ -44,6 +45,8 @@ export class MemberProfile implements OnInit, OnDestroy {
     country: '',
   };
 
+  private accountService = inject(AccountService);
+
   public ngOnInit(): void {
     this.editableMemberFields = {
       displayName: this.memberService.member()?.displayName || '',
@@ -69,14 +72,20 @@ export class MemberProfile implements OnInit, OnDestroy {
     const updatedMember = { ...this.memberService.member(), ...this.editableMemberFields };
     this.memberService.updateMemberDetails(this.editableMemberFields).subscribe({
       next: () => {
-        this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
-        // Toggle edit mode back to false
-        this.memberService.editMode.set(false);
         // Update the member with the new details
         this.memberService.member.set(updatedMember as Member);
         // Reset the form with the new updatedMember
         // This resets our dirty flag back to false
         this.editForm?.reset(updatedMember);
+        // Updating the currentUser object so the displayName is updated also
+        const currentUser = this.accountService.currentUser();
+        if (currentUser && updatedMember.displayName !== currentUser?.displayName) {
+          currentUser.displayName = updatedMember.displayName;
+          this.accountService.setCurrentUser(currentUser);
+        }
+        // Toggle edit mode back to false
+        this.memberService.editMode.set(false);
+        this.snackBarService.openGenericSuccessSnackBar('User Profile Updated');
       },
     });
   }
