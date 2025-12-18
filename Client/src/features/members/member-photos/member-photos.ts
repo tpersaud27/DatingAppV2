@@ -13,12 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-member-photos',
-  imports: [AsyncPipe, MatProgressBarModule, MatIconModule, MatButtonModule],
+  imports: [MatProgressBarModule, MatIconModule, MatButtonModule],
   templateUrl: './member-photos.html',
   styleUrl: './member-photos.css',
 })
 export class MemberPhotos {
-  public photos$?: Observable<Photo[]>;
+  public photos = signal<Photo[]>([]);
   public isUploading = signal(false);
   public uploadProgress = signal<number | null>(null);
 
@@ -29,7 +29,11 @@ export class MemberPhotos {
 
   constructor(private uploadService: PhotoUploadService) {
     const memberId = this.memberService.member()?.id;
-    this.photos$ = memberId ? this.memberService.getMemberPhotos(memberId) : undefined;
+    if (memberId) {
+      this.memberService.getMemberPhotos(memberId).subscribe({
+        next: (photos) => this.photos.set(photos),
+      });
+    }
 
     // This runs whenevber a signal changes
     // The parent component (member-detailed) triggers the signal openFilePicker to true
@@ -49,16 +53,17 @@ export class MemberPhotos {
 
     if (!confirmed) return;
 
+    // 🔥 Optimistic UI update
+    this.photos.update((current) => current.filter((p) => p.id !== photo.id));
+
     this.uploadService.deletePhoto(photo.id).subscribe({
       next: () => {
-        // Refresh photos after delete
-        const memberId = this.memberService.member()?.id;
-        if (memberId) {
-          this.photos$ = this.memberService.getMemberPhotos(memberId);
-        }
+        console.log('Photo deleted successfully');
       },
       error: (err) => {
         console.error('Failed to delete photo', err);
+        // rollback if delete fails
+        this.photos.update((current) => [...current, photo]);
       },
     });
   }
@@ -122,13 +127,14 @@ export class MemberPhotos {
   private onUploadComplete(fileUrl: string): void {
     this.uploadService.savePhoto(fileUrl).subscribe({
       next: () => {
-        this.resetUploadState();
-
-        // 🔄 Refresh photos after successful save
         const memberId = this.memberService.member()?.id;
         if (memberId) {
-          this.photos$ = this.memberService.getMemberPhotos(memberId);
+          this.memberService.getMemberPhotos(memberId).subscribe({
+            next: (photos) => this.photos.set(photos),
+          });
         }
+
+        this.resetUploadState();
       },
       error: (error) => {
         console.error('Failed to save photo to DB:', error);
