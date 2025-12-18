@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Authorize]
-    public class MembersController(IMemberRepository memberRepository) : BaseApiController
+    public class MembersController(IMemberRepository memberRepository, IConfiguration config)
+        : BaseApiController
     {
         // Action Result allows us to return a HTTP Response
         // Task allows us to return a async operation
@@ -36,7 +37,18 @@ namespace API.Controllers
         [HttpGet("{id}/photos")] // api/members/{id}/photos
         public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
         {
-            return Ok(await memberRepository.GetPhotosForMemberAsync(id));
+            var photos = await memberRepository.GetPhotosForMemberAsync(id);
+
+            var cloudFrontBaseUrl = config["CloudFront:BaseUrl"];
+
+            var photoDtos = photos
+                .Select(p => new PhotoDTO
+                {
+                    Id = p.Id,
+                    Url = p.S3Key == "external" ? p.Url : $"{cloudFrontBaseUrl}/{p.S3Key}",
+                })
+                .ToList();
+            return Ok(photoDtos);
         }
 
         [HttpPut]
