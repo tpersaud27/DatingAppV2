@@ -1,6 +1,8 @@
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
 using API.DTOs;
+using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Authorize]
-    public class PhotosController(IS3Service s3Service) : BaseApiController
+    public class PhotosController(IS3Service s3Service, IPhotoRepository photoRepository)
+        : BaseApiController
     {
         [HttpPost("presign")] // api/photos/presign
         public ActionResult<S3PhotoDTO.PresignResponse> Presign(
@@ -20,17 +23,33 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("whoami")]
-        public async Task<IActionResult> WhoAmI([FromServices] IAmazonSecurityTokenService sts)
+        [HttpPost] //api/photos
+        public async Task<IActionResult> AddPhoto(AddPhotoDTO addPhotoDTO)
         {
-            var identity = await sts.GetCallerIdentityAsync(new GetCallerIdentityRequest());
+            if (string.IsNullOrWhiteSpace(addPhotoDTO.Url))
+            {
+                return BadRequest("Url is required.");
+            }
+
+            // We need to add the Photo URl to the Member's Photos collection
+            var memberId = User.GetMemberId();
+
+            if (string.IsNullOrWhiteSpace(memberId))
+            {
+                return Unauthorized();
+            }
+
+            // This is the new photo entity we will add
+            var photo = new Photo { Url = addPhotoDTO.Url, MemberId = memberId };
+
+            var savedPhoto = await photoRepository.AddPhotoAsync(photo);
 
             return Ok(
                 new
                 {
-                    identity.Account,
-                    identity.Arn,
-                    identity.UserId,
+                    savedPhoto.Id,
+                    savedPhoto.Url,
+                    savedPhoto.MemberId,
                 }
             );
         }
