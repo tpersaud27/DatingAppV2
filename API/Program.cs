@@ -1,4 +1,5 @@
 using System.Text;
+using Amazon.S3;
 using API.Data;
 using API.Extensions;
 using API.Interfaces;
@@ -40,6 +41,10 @@ builder
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+
+// AWS S3 Services
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddScoped<IS3Service, S3Service>();
 
 var app = builder.Build();
 
