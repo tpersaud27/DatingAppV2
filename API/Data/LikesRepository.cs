@@ -10,17 +10,17 @@ namespace API.Data
 {
     public class LikesRepository(AppDbContext context) : ILikesRepository
     {
-        public void AddLIke(MemberLike memberLike)
+        public void AddLike(MemberLike memberLike)
         {
             context.Likes.Add(memberLike);
         }
 
-        public void DeleteLIke(MemberLike memberLike)
+        public void DeleteLike(MemberLike memberLike)
         {
             context.Likes.Remove(memberLike);
         }
 
-        public async Task<IReadOnlyList<string>> GetCurrentMemberLIkeIds(string memberId)
+        public async Task<IReadOnlyList<string>> GetCurrentMemberLikeIds(string memberId)
         {
             // We query our likes table based on our sourceMemberId (this is our current user)
             // We get our list of likes from the current user which is our targetMemberId
@@ -31,7 +31,7 @@ namespace API.Data
                 .ToListAsync();
         }
 
-        public async Task<MemberLike?> GetMemberLIke(string sourceMemberId, string targetMemberId)
+        public async Task<MemberLike?> GetMemberLike(string sourceMemberId, string targetMemberId)
         {
             // This returns the MemberLike object based on the sourceMemberId and targetMemberId
             return await context.Likes.FindAsync(sourceMemberId, targetMemberId);
@@ -58,7 +58,7 @@ namespace API.Data
                 default: // mutual case
                     // list of the members that both the current user and the target user have liked
                     // This gets us the list of people that the current user likes
-                    var likeIds = await GetCurrentMemberLIkeIds(memberId);
+                    var likeIds = await GetCurrentMemberLikeIds(memberId);
                     return await likesQuery
                         .Where(x =>
                             // Here we also get the list of people that the target user likes
