@@ -3,6 +3,15 @@
     @for (member of members$ | async; track member.id) { @if(member.id !==
     accountService.currentUser()?.id){
     <mat-card routerLink="/members/{{ member.id }}" class="user-card" appearance="outlined">
+      <!-- Like icon -->
+      <button
+        mat-icon-button
+        class="like-btn"
+        [class.liked]="hasLiked(member.id)"
+        (click)="$event.preventDefault(); $event.stopPropagation()"
+      >
+        <mat-icon>favorite</mat-icon>
+      </button>
       <mat-card-header>
         <img mat-card-avatar [src]="member.imageUrl || '/user.png'" alt="User avatar" />
         <mat-card-title>{{ member.displayName }}, {{ member.dateOfBirth | age }}</mat-card-title>
