@@ -6,6 +6,7 @@ Version 2 of Dating App
 
 - **AppUser** has a **many-to-many relationship with itself** (AppUser ↔ AppUser)  
 - This relationship is implemented through the **UserLike** join table.
+- Self referencing many to many relationship
 
 ### UserLike
 

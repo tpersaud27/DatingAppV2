@@ -23,5 +23,13 @@ namespace API.Entities
         [JsonIgnore]
         [ForeignKey(nameof(Id))]
         public AppUser User { get; set; } = null!;
+
+        // List of users who like the current user
+        [JsonIgnore]
+        public List<MemberLike> LikedByMembers { get; set; } = [];
+
+        // List of users the current user likes
+        [JsonIgnore]
+        public List<MemberLike> LikedMembers { get; set; } = [];
     }
 }
