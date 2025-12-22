@@ -1,0 +1,95 @@
+.page-container {
+  padding: 32px 48px;
+  /* left/right padding */
+  max-width: 1400px;
+  /* optional: prevent cards from stretching too wide */
+  margin: 0 auto;
+  /* center on page */
+}
+
+.page-title {
+  margin-bottom: 24px;
+  font-weight: 600;
+  font-size: 1.75rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* 3 per row */
+  gap: 16px;
+}
+
+/* Make cards interactive */
+.user-card {
+  position: relative;
+  /* needed for like button positioning */
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Card hover effect */
+.user-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Like button overlay on card hover */
+.user-card .like-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 150ms ease, transform 150ms ease;
+
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Show like button when card is hovered */
+.user-card:hover .like-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Default (not liked) */
+.like-btn mat-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+/* Liked state */
+.like-btn.liked mat-icon {
+  color: #e53935;
+  /* Material red */
+  transform: scale(1.1);
+}
+
+/* Optional: smooth transition */
+.like-btn mat-icon {
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.user-card mat-card-content {
+  flex: 1 1 auto;
+}
+
+.user-card mat-card-actions {
+  margin-top: auto;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
