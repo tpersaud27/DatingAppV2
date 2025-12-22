@@ -4,7 +4,7 @@ namespace API.Interfaces
 {
     public interface ILikesRepository
     {
-        Task<MemberLike> GetMemberLIke(string sourceMemberId, string targetMemberId);
+        Task<MemberLike?> GetMemberLIke(string sourceMemberId, string targetMemberId);
 
         // Predicate will define what kind of list we want to return
         // For example the list of users the current user has liked, or been liked by, or mutual likes
