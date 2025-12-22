@@ -8,7 +8,7 @@
         mat-icon-button
         class="like-btn"
         [class.liked]="hasLiked(member.id)"
-        (click)="$event.preventDefault(); $event.stopPropagation()"
+        (click)="onLike($event, member.id)"
       >
         <mat-icon>favorite</mat-icon>
       </button>

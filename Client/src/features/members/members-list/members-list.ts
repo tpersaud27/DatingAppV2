@@ -40,4 +40,17 @@ export class MembersList {
   constructor() {
     this.members$ = this.memberService.getMembers();
   }
+
+  public onLike(event: MouseEvent, memberId: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.likesService.toggleLike(memberId).subscribe({
+      next: () => {
+        this.likesService.getLikeIds().subscribe();
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
 }

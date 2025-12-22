@@ -13,8 +13,8 @@ export class LikesServices {
 
   public likedIds = signal<string[]>([]);
 
-  public toggleLike(targetMemberId: string): void {
-    this.http.post(`${this.baseUrl}likes/${targetMemberId}`, {});
+  public toggleLike(targetMemberId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}likes/${targetMemberId}`, {});
   }
 
   public getLikes(predicate: string): Observable<Member[]> {
