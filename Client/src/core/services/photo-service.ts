@@ -1,4 +1,4 @@
-import { HttpBackend, HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpEvent } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
@@ -8,7 +8,7 @@ import { Photo } from '../../Types/Member';
 @Injectable({
   providedIn: 'root',
 })
-export class PhotoUploadService {
+export class PhotoService {
   public http = inject(HttpClient);
   private httpBackend = inject(HttpBackend);
   // 👇 Client without interceptors

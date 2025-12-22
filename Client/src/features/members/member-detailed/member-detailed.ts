@@ -11,7 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { AgePipe } from '../../../core/pipes/age-pipe';
 import { AccountService } from '../../../core/services/account-service';
-import { PhotoUploadService } from '../../../core/services/photo-upload-service';
+import { PhotoService } from '../../../core/services/photo-service';
 
 @Component({
   selector: 'app-member-detailed',
@@ -34,7 +34,7 @@ export class MemberDetailed implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private accountService = inject(AccountService);
-  private photoUploadService = inject(PhotoUploadService);
+  private photoService = inject(PhotoService);
 
   public title = signal<string | undefined>('Profile');
   // This signal checks if the user logged in is viewing their profile from the matches tab
@@ -86,7 +86,7 @@ export class MemberDetailed implements OnInit {
 
   public onAddPhoto(): void {
     // Trigger the file picker open signal
-    this.photoUploadService.triggerOpenFilePicker();
-    console.log('Add Photo Clicked ', this.photoUploadService.openFilePicker());
+    this.photoService.triggerOpenFilePicker();
+    console.log('Add Photo Clicked ', this.photoService.openFilePicker());
   }
 }
