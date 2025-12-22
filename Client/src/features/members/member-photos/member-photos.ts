@@ -1,15 +1,13 @@
 import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { MemberService } from '../../../core/services/member-service';
-import { Observable } from 'rxjs';
 import { Photo } from '../../../Types/Member';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
-import { PhotoUploadService } from '../../../core/services/photo-upload-service';
 import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
 import { PresignedUrlResponse } from '../../../Types/PhotoUpload';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { PhotoService } from '../../../core/services/photo-service';
 
 @Component({
   selector: 'app-member-photos',
@@ -27,7 +25,7 @@ export class MemberPhotos {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private uploadService: PhotoUploadService) {
+  constructor(private photoService: PhotoService) {
     const memberId = this.memberService.member()?.id;
     if (memberId) {
       this.memberService.getMemberPhotos(memberId).subscribe({
@@ -40,9 +38,9 @@ export class MemberPhotos {
     // The child component (member-photos) listens for that change and opens the fileInput
     // Run this function once now, and then re-run it every time any signal inside it changes.
     effect(() => {
-      if (this.uploadService.openFilePicker()) {
+      if (this.photoService.openFilePicker()) {
         this.fileInput.nativeElement.click();
-        this.uploadService.resetFilePicker();
+        this.photoService.resetFilePicker();
       }
     });
   }
@@ -56,7 +54,7 @@ export class MemberPhotos {
     // 🔥 Optimistic UI update
     this.photos.update((current) => current.filter((p) => p.id !== photo.id));
 
-    this.uploadService.deletePhoto(photo.id).subscribe({
+    this.photoService.deletePhoto(photo.id).subscribe({
       next: () => {
         console.log('Photo deleted successfully');
       },
@@ -87,7 +85,7 @@ export class MemberPhotos {
     const total = files.length;
 
     files.forEach((file) => {
-      this.uploadService.getPresignedUrl(file).subscribe({
+      this.photoService.getPresignedUrl(file).subscribe({
         next: (response) => {
           this.uploadToS3(response, file, () => {
             completed++;
@@ -107,7 +105,7 @@ export class MemberPhotos {
   }
 
   private uploadToS3(response: PresignedUrlResponse, file: File, onComplete: () => void): void {
-    this.uploadService.uploadToS3(response.uploadUrl, file).subscribe({
+    this.photoService.uploadToS3(response.uploadUrl, file).subscribe({
       next: (event: HttpEvent<unknown>) => {
         if (event.type === HttpEventType.Response) {
           this.onUploadComplete(response.fileUrl, onComplete);
@@ -137,7 +135,7 @@ export class MemberPhotos {
   }
 
   private onUploadComplete(fileUrl: string, onComplete: () => void): void {
-    this.uploadService.savePhoto(fileUrl).subscribe({
+    this.photoService.savePhoto(fileUrl).subscribe({
       next: () => {
         const memberId = this.memberService.member()?.id;
         if (memberId) {
