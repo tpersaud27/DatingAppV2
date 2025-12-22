@@ -44,6 +44,7 @@ builder
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
+builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 
 // AWS S3 Services
 builder.Services.AddAWSService<IAmazonS3>();
