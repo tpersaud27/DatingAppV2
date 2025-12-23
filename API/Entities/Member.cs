@@ -31,5 +31,13 @@ namespace API.Entities
         // List of users the current user likes
         [JsonIgnore]
         public List<MemberLike> LikedMembers { get; set; } = [];
+
+        // List of MessagesSent by the current user
+        [JsonIgnore]
+        public List<Message> MessagesSent { get; set; } = [];
+
+        // LIst of MessagesReceived by the current user
+        [JsonIgnore]
+        public List<Message> MessagesReceived { get; set; } = [];
     }
 }

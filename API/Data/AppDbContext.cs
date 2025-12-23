@@ -10,10 +10,25 @@ namespace API.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<MemberLike> Likes { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // When a recipient deletes messages, we don't want to delete the messages on the senders side
+            modelBuilder
+                .Entity<Message>()
+                .HasOne(x => x.Recipient)
+                .WithMany(x => x.MessagesReceived)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Message>()
+                .HasOne(x => x.Sender)
+                .WithMany(x => x.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // This will set the primary key for the MemberLike table to be a combination of the SourceMemberId and TargetMemberId
             modelBuilder
                 .Entity<MemberLike>()
