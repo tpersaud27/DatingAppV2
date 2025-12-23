@@ -1,3 +1,11 @@
+/* ===== Thread container ===== */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ===== Messages area ===== */
 .messages {
   flex: 1;
   overflow-y: auto;
@@ -7,30 +15,64 @@
   gap: 12px;
 }
 
+/* ===== Individual message ===== */
 .message {
   display: flex;
   flex-direction: column;
   max-width: 65%;
 }
 
+/* Align my messages to the right */
 .message.mine {
   align-self: flex-end;
 }
 
+/* Message bubble */
 .bubble {
   padding: 10px 14px;
   border-radius: 16px;
   background: #f1f1f1;
   font-size: 0.9rem;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
+/* My message bubble */
 .message.mine .bubble {
   background: #1976d2;
   color: white;
 }
 
+/* Timestamp */
 .timestamp {
   font-size: 0.7rem;
   color: #999;
   margin-top: 2px;
+  align-self: flex-end;
+}
+
+/* ===== Composer (input bar) ===== */
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+/* Make input stretch full width */
+.composer .input {
+  flex: 1;
+}
+
+/* Fix Angular Material form field sizing */
+.composer mat-form-field {
+  width: 100%;
+  margin: 0;
+}
+
+/* Send button spacing */
+.composer button {
+  flex-shrink: 0;
 }
