@@ -1,15 +1,26 @@
+using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
     [Authorize]
-    public class MessagesController(IMessageRepository messageRepository) : BaseApiController
+    public class MessagesController : BaseApiController
     {
+        private readonly IMessageRepository messageRepository;
+        private readonly AppDbContext context;
+
+        public MessagesController(IMessageRepository messageRepository, AppDbContext context)
+        {
+            this.messageRepository = messageRepository;
+            this.context = context;
+        }
+
         // POST: api/messages
         [HttpPost]
         public async Task<ActionResult<MessageDto>> SendMessage(CreateMessageDto dto)
@@ -85,16 +96,28 @@ namespace API.Controllers
             var userId = User.GetMemberId();
             var conversations = await messageRepository.GetUserConversationsAsync(userId);
 
+            // Collect all "other" user IDs
+            var otherUserIds = conversations
+                .Select(c => c.UserAId == userId ? c.UserBId : c.UserAId)
+                .Distinct()
+                .ToList();
+
+            // Fetch display names in ONE query
+            var users = await context
+                .Members.Where(m => otherUserIds.Contains(m.Id))
+                .Select(m => new { m.Id, m.DisplayName })
+                .ToDictionaryAsync(m => m.Id, m => m.DisplayName);
+
             var result = conversations.Select(c =>
             {
                 var lastMessage = c.Messages.FirstOrDefault();
-
                 var otherUserId = c.UserAId == userId ? c.UserBId : c.UserAId;
 
                 return new ConversationDTO
                 {
                     Id = c.Id,
                     OtherUserId = otherUserId,
+                    OtherUserDisplayName = users.GetValueOrDefault(otherUserId, "Unknown"),
                     LastMessage =
                         lastMessage == null
                             ? null
