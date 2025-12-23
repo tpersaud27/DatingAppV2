@@ -1,1 +1,11 @@
-<p>member-messages works!</p>
+<!-- message-thread -->
+<div class="thread-wrapper">
+  @if (conversation()?.id) {
+  <app-message-thread
+    [conversationId]="conversation()?.id"
+    [recipientId]="conversation()?.otherUserId"
+  ></app-message-thread>
+  } @else {
+  <div class="empty">Select a conversation</div>
+  }
+</div>

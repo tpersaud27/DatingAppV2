@@ -1,8 +1,8 @@
 export interface Conversation {
   id: string;
   otherUserId: string;
-  otherUserDisplayName: string;
-  lastMessage: MessagePreview;
+  otherUserDisplayName?: string;
+  lastMessage?: MessagePreview;
 }
 export interface MessagePreview {
   id: string;

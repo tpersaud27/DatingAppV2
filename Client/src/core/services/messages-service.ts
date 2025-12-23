@@ -12,16 +12,22 @@ export class MessagesService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
-  // Returns list of all conversations
+  // Inbox: list all conversations for current user
   public getAllConversations(): Observable<Conversation[]> {
     return this.http.get<Conversation[]>(`${this.baseUrl}messages/conversations`);
   }
 
+  // Load messages for a conversation
   public getMessages(conversationId: string): Observable<Message[]> {
     return this.http.get<Message[]>(`${this.baseUrl}messages/conversations/${conversationId}`);
   }
 
   public sendMessage(payload: { recipientId: string; content: string }) {
     return this.http.post<CreateMessage>(`${this.baseUrl}messages`, payload);
+  }
+
+  // Profile page: get or create conversation with a specific user
+  public getConversationWithUser(otherUserId: string): Observable<Conversation> {
+    return this.http.get<Conversation>(`${this.baseUrl}messages/conversations/with/${otherUserId}`);
   }
 }

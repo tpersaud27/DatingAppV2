@@ -133,5 +133,19 @@ namespace API.Controllers
 
             return Ok(result);
         }
+
+        // GET: api/messages/conversations/with/{otherUserId}
+        [HttpGet("conversations/with/{otherUserId}")]
+        public async Task<ActionResult<ConversationDTO>> GetConversationWithUser(string otherUserId)
+        {
+            var currentUserId = User.GetMemberId();
+
+            var conversation = await messageRepository.GetOrCreateConversationAsync(
+                currentUserId,
+                otherUserId
+            );
+
+            return Ok(new ConversationDTO { Id = conversation.Id, OtherUserId = otherUserId });
+        }
     }
 }
