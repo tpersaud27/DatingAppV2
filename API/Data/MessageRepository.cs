@@ -47,28 +47,27 @@ namespace API.Data
         // Cursor-based pagination + per-user soft deletes
         public async Task<IReadOnlyList<Message>> GetMessagesAsync(
             string conversationId,
-            string currentUserId,
+            string userId,
             int take,
             DateTime? before
         )
         {
-            take = Math.Clamp(take, 1, 50);
-
-            var query = context
+            IQueryable<Message> query = context
                 .Messages.Where(m => m.ConversationId == conversationId)
-                .Where(m =>
-                    (m.SenderId == currentUserId && !m.SenderDeleted)
-                    || (m.RecipientId == currentUserId && !m.RecipientDeleted)
-                );
+                .OrderByDescending(m => m.MessageSent);
 
             if (before.HasValue)
             {
                 query = query.Where(m => m.MessageSent < before.Value);
             }
 
-            query = query.OrderByDescending(m => m.MessageSent).Take(take);
+            // 1️⃣ Get newest messages
+            var messages = await query.Take(take).ToListAsync();
 
-            return await query.ToListAsync();
+            // 2️⃣ Reverse so UI gets oldest → newest
+            messages.Reverse();
+
+            return messages;
         }
 
         // Inbox / conversation list
