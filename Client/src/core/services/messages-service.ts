@@ -22,8 +22,8 @@ export class MessagesService {
     return this.http.get<Message[]>(`${this.baseUrl}messages/conversations/${conversationId}`);
   }
 
-  public sendMessage(payload: { recipientId: string; content: string }) {
-    return this.http.post<CreateMessage>(`${this.baseUrl}messages`, payload);
+  public sendMessage(payload: { recipientId: string; content: string }): Observable<Message> {
+    return this.http.post<Message>(`${this.baseUrl}messages`, payload);
   }
 
   // Profile page: get or create conversation with a specific user

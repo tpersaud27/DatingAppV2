@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { Component, effect, inject, input, Input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +11,14 @@ import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-message-thread',
-  imports: [MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, DatePipe],
+  imports: [
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
+    DatePipe,
+    FormsModule,
+  ],
   templateUrl: './message-thread.html',
   styleUrl: './message-thread.css',
 })
@@ -23,6 +31,7 @@ export class MessageThread {
   recipientId = input<string>();
 
   messages = signal<Message[]>([]);
+  isSending = signal<boolean>(false);
   currentUserId = this.accountService.currentUser()?.id;
 
   constructor() {
@@ -36,21 +45,28 @@ export class MessageThread {
   }
 
   public onSendMessage(input: HTMLInputElement): void {
-    const content = input.value.trim();
-    const recipientId = this.recipientId();
+    if (this.isSending()) return;
+
+    const content: string = input.value.trim();
+    const recipientId: string | undefined = this.recipientId();
 
     if (!content || !recipientId) return;
 
+    this.isSending.set(true);
+    // 🔹 Send to API and WAIT
     this.messagesService.sendMessage({ recipientId, content }).subscribe({
-      next: (message) => {
-        console.log('Message ', message);
+      next: (serverMessage: Message): void => {
+        // ✅ Append ONLY what the server returns
+        this.messages.update((msgs) => [...msgs, serverMessage]);
+
+        input.value = '';
+        this.isSending.set(false);
       },
-      error: () => {
-        console.log('Error while sending message!');
+      error: (): void => {
+        console.error('Failed to send message');
+        this.isSending.set(false);
       },
     });
-
-    input.value = '';
   }
 
   private loadMessages(conversationId: string) {

@@ -61,6 +61,14 @@
   border-top-right-radius: 6px;
 }
 
+.message.pending .bubble {
+  opacity: 0.6;
+}
+
+.message.failed .bubble {
+  border: 1px solid red;
+}
+
 /* ===== Timestamp ===== */
 .timestamp {
   font-size: 0.7rem;
