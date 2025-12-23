@@ -1,5 +1,14 @@
 import { FormsModule } from '@angular/forms';
-import { Component, effect, inject, input, Input, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  Input,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,12 +36,15 @@ export class MessageThread {
   private accountService = inject(AccountService);
 
   // INPUT AS SIGNAL
-  conversationId = input<string>();
-  recipientId = input<string>();
+  public conversationId = input<string>();
+  public recipientId = input<string>();
 
-  messages = signal<Message[]>([]);
-  isSending = signal<boolean>(false);
-  currentUserId = this.accountService.currentUser()?.id;
+  public messages = signal<Message[]>([]);
+  public isSending = signal<boolean>(false);
+  public currentUserId = this.accountService.currentUser()?.id;
+
+  @ViewChild('messagesContainer')
+  private messagesContainer?: ElementRef<HTMLDivElement>;
 
   constructor() {
     effect(() => {
@@ -61,6 +73,9 @@ export class MessageThread {
 
         input.value = '';
         this.isSending.set(false);
+        queueMicrotask(() => {
+          this.scrollToBottom();
+        });
       },
       error: (): void => {
         console.error('Failed to send message');
@@ -69,9 +84,26 @@ export class MessageThread {
     });
   }
 
-  private loadMessages(conversationId: string) {
+  private loadMessages(conversationId: string): void {
     this.messagesService.getMessages(conversationId).subscribe({
-      next: (msgs) => this.messages.set(msgs),
+      next: (msgs) => {
+        this.messages.set(msgs);
+
+        queueMicrotask(() => {
+          this.scrollToBottom();
+        });
+      },
+    });
+  }
+
+  private scrollToBottom(): void {
+    // If the container isn't available yet, do nothing.
+    const el: HTMLDivElement | undefined = this.messagesContainer?.nativeElement;
+    if (!el) return;
+
+    // Defer until after Angular renders the @for updates
+    requestAnimationFrame((): void => {
+      el.scrollTop = el.scrollHeight;
     });
   }
 }
