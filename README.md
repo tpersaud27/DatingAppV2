@@ -1,6 +1,17 @@
 # DatingAppV2
 
-Version 2 of Dating App
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Endpoints](#endpoints)
+3. [Database Schemas](#database-schemas)
+4. [Feature Architecture](#feature-architecture)
+5. [Key Advantages](#-key-advantages)
+
+# Overview
+
+Dating App V2
+
 
 # Endpoints
 
@@ -24,15 +35,15 @@ Toggle a like between the current authenticated member and a target member.
 
 ### Route Parameters
 
-| Name | Type | Description |
-|------|------|------------|
+| Name           | Type   | Description                        |
+|----------------|--------|------------------------------------|
 | targetMemberId | string | ID of the member to like or unlike |
 
 ### Responses
 
-| Status | Description |
-|--------|------------|
-| 200 OK | Like added or removed successfully |
+| Status         | Description                               |
+|----------------|-------------------------------------------|
+| 200 OK         | Like added or removed successfully        |
 | 400 Bad Request | Attempt to like self or persistence failure |
 
 ---
