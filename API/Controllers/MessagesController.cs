@@ -23,7 +23,7 @@ namespace API.Controllers
 
         // POST: api/messages
         [HttpPost]
-        public async Task<ActionResult<MessageDto>> SendMessage(CreateMessageDto dto)
+        public async Task<ActionResult<MessageDto>> SendMessage([FromBody] CreateMessageDto dto)
         {
             var senderId = User.GetMemberId();
 

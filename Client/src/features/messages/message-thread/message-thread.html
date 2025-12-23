@@ -14,10 +14,15 @@
 
 <div class="composer">
   <mat-form-field appearance="outline" class="input">
-    <input matInput placeholder="Type a message…" />
+    <input
+      matInput
+      placeholder="Type a message…"
+      #messageInput
+      (keyup.enter)="onSendMessage(messageInput)"
+    />
   </mat-form-field>
 
-  <button mat-icon-button color="primary">
+  <button mat-icon-button color="primary" (click)="onSendMessage(messageInput)">
     <mat-icon>send</mat-icon>
   </button>
 </div>

@@ -3,8 +3,8 @@
   <mat-nav-list class="conversation-list">
     @for(conversation of conversations(); track conversation.id;){
     <mat-list-item
-      (click)="selectConversation(conversation.id)"
-      [class.active]="conversation.id === selectedConversationId()"
+      (click)="selectConversation(conversation)"
+      [class.active]="conversation.id === selectedConversation()?.id"
     >
       <div matLine class="title">
         {{ conversation.otherUserDisplayName }}
@@ -24,8 +24,11 @@
 
   <!-- message-thread -->
   <div class="thread">
-    @if(selectedConversationId()) {
-    <app-message-thread [conversationId]="selectedConversationId()!"></app-message-thread>
+    @if(selectedConversation()?.id) {
+    <app-message-thread
+      [conversationId]="selectedConversation()?.id"
+      [recipientId]="selectedConversation()?.otherUserId"
+    ></app-message-thread>
     } @else {
     <div class="empty">Select a conversation</div>
     }

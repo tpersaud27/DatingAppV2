@@ -20,3 +20,9 @@ export interface Message {
   messageSent: string;
   dateRead?: string;
 }
+
+export interface CreateMessage {
+  recipientId: string;
+  content: string;
+  clientMessageId?: string;
+}

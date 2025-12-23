@@ -20,6 +20,7 @@ export class MessageThread {
 
   // INPUT AS SIGNAL
   conversationId = input<string>();
+  recipientId = input<string>();
 
   messages = signal<Message[]>([]);
   currentUserId = this.accountService.currentUser()?.id;
@@ -32,6 +33,24 @@ export class MessageThread {
       console.log('conversationId changed →', id);
       this.loadMessages(id);
     });
+  }
+
+  public onSendMessage(input: HTMLInputElement): void {
+    const content = input.value.trim();
+    const recipientId = this.recipientId();
+
+    if (!content || !recipientId) return;
+
+    this.messagesService.sendMessage({ recipientId, content }).subscribe({
+      next: (message) => {
+        console.log('Message ', message);
+      },
+      error: () => {
+        console.log('Error while sending message!');
+      },
+    });
+
+    input.value = '';
   }
 
   private loadMessages(conversationId: string) {

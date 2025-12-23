@@ -15,7 +15,7 @@ export class Messages {
   private messagesService = inject(MessagesService);
 
   conversations = signal<Conversation[]>([]);
-  selectedConversationId = signal<string | null>(null);
+  selectedConversation = signal<Conversation | null>(null);
 
   constructor() {
     this.loadInbox();
@@ -28,7 +28,7 @@ export class Messages {
     });
   }
 
-  selectConversation(conversationId: string) {
-    this.selectedConversationId.set(conversationId);
+  selectConversation(conversation: Conversation) {
+    this.selectedConversation.set(conversation);
   }
 }

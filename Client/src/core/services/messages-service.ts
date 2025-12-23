@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Conversation, Message } from '../../Types/Message';
+import { Conversation, CreateMessage, Message } from '../../Types/Message';
 
 @Injectable({
   providedIn: 'root',
@@ -19,5 +19,9 @@ export class MessagesService {
 
   public getMessages(conversationId: string): Observable<Message[]> {
     return this.http.get<Message[]>(`${this.baseUrl}messages/conversations/${conversationId}`);
+  }
+
+  public sendMessage(payload: { recipientId: string; content: string }) {
+    return this.http.post<CreateMessage>(`${this.baseUrl}messages`, payload);
   }
 }
