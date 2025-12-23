@@ -1,8 +1,13 @@
 /* ===== Thread container ===== */
 :host {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    /* ✅ ADD THIS */
+    min-width: 0;
+    /* 🚨 REQUIRED */
+    min-height: 0;
 }
 
 /* ===== Messages area ===== */
