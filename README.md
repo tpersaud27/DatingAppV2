@@ -2,6 +2,8 @@
 
 Version 2 of Dating App
 
+# Endpoints
+
 ## Likes Endpoint
 
 Base Route: /api/likes
@@ -9,8 +11,6 @@ Base Route: /api/likes
 This controller manages member-to-member likes, supporting toggling likes, retrieving liked member IDs, and listing likes based on relationship direction.
 
 ---
-
-## 🔁 Toggle Like
 
 ### POST `/api/likes/{targetMemberId}`
 
@@ -37,8 +37,6 @@ Toggle a like between the current authenticated member and a target member.
 
 ---
 
-## 📌 Get Current Member’s Like IDs
-
 ### GET `/api/likes/list`
 
 Returns a list of member IDs that the current member has liked.
@@ -52,8 +50,6 @@ Returns a list of member IDs that the current member has liked.
   "memberId3"
 ]
 ```
-
-## 👥 Get Member Likes (Predicate-Based)
 
 ### GET `/api/likes?predicate={predicate}`
 
@@ -122,6 +118,8 @@ Returns members who:
   }
 ]
 ```
+
+# Database Schemas
 
 ## Relational Model for Like Feature
 
