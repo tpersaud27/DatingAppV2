@@ -10,24 +10,67 @@ namespace API.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<MemberLike> Likes { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // When a recipient deletes messages, we don't want to delete the messages on the senders side
+            // ==========================
+            // Conversation (1:1)
+            // ==========================
+
+            modelBuilder
+                .Entity<Conversation>()
+                .HasIndex(c => new { c.UserAId, c.UserBId })
+                .IsUnique();
+
+            // ==========================
+            // Message Relationships
+            // ==========================
+
+            // Sender → MessagesSent (NO cascade)
             modelBuilder
                 .Entity<Message>()
-                .HasOne(x => x.Recipient)
-                .WithMany(x => x.MessagesReceived)
+                .HasOne(m => m.Sender)
+                .WithMany(u => u.MessagesSent)
+                .HasForeignKey(m => m.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Recipient → MessagesReceived (NO cascade)
+            modelBuilder
+                .Entity<Message>()
+                .HasOne(m => m.Recipient)
+                .WithMany(u => u.MessagesReceived)
+                .HasForeignKey(m => m.RecipientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Conversation → Messages (NO cascade)
+            modelBuilder
+                .Entity<Message>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ==========================
+            // Message Indexes
+            // ==========================
 
             modelBuilder
                 .Entity<Message>()
-                .HasOne(x => x.Sender)
-                .WithMany(x => x.MessagesSent)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasIndex(m => new { m.ConversationId, m.MessageSent });
+
+            modelBuilder
+                .Entity<Message>()
+                .HasIndex(m => new { m.SenderId, m.ClientMessageId })
+                .IsUnique()
+                .HasFilter("[ClientMessageId] IS NOT NULL");
+
+            // ==========================
+            // Member Likes
+            // ==========================
 
             // This will set the primary key for the MemberLike table to be a combination of the SourceMemberId and TargetMemberId
             modelBuilder
