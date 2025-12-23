@@ -12,8 +12,11 @@
 
 Dating App V2
 
-
 # Endpoints
+
+## Table of Contents
+
+1. [Likes Endpoint](#likes-endpoint)
 
 ## Likes Endpoint
 
@@ -162,9 +165,15 @@ erDiagram
 
 # Feature Architecture
 
-## Photo Upload
 
-### Core Components
+## Table of Contents
+
+1. [Photo Upload Architecture](#photo-upload-architecture)
+2. [Message Architecture](#message-architecture)
+
+# Photo Upload Architecture
+
+## Core Components
 
 | Component         | Responsibility                             |
 | ----------------- | ------------------------------------------ |
@@ -174,7 +183,7 @@ erDiagram
 | Amazon CloudFront | Public image delivery layer                |
 | IAM               | Enforces least-privilege access            |
 
-# 📸 Photo Upload & Display Architecture
+## 📸 Photo Upload & Display Architecture
 
 **Angular + .NET + AWS (S3 + CloudFront)**
 
@@ -349,7 +358,7 @@ Example Usage
 - CloudFront Origin Access Control
 - (Optional) Signed CloudFront URLs for private images
 
-## 🏗️ Message Architecture Flow
+# Message Architecture
 
 1. **Angular (WebSocket)**
     - Initiates the persistent connection.
