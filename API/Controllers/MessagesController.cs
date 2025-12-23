@@ -48,7 +48,7 @@ namespace API.Controllers
         }
 
         // GET: api/messages/conversations/{conversationId}
-        [HttpGet("conversations/{conversationId}")]
+        [HttpGet("conversations/{conversationId:guid}")]
         public async Task<ActionResult<IReadOnlyList<MessageDto>>> GetMessages(
             string conversationId,
             [FromQuery] int take = 20,

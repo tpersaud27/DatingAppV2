@@ -1,0 +1,23 @@
+<div class="messages">
+  @for(message of messages(); track message.id;){
+  <div class="message" [class.mine]="message.senderId === currentUserId">
+    <div class="bubble">
+      {{ message.content }}
+    </div>
+
+    <div class="timestamp">
+      {{ message.messageSent | date : 'shortTime' }}
+    </div>
+  </div>
+  }
+</div>
+
+<div class="composer">
+  <mat-form-field appearance="outline" class="input">
+    <input matInput placeholder="Type a message…" />
+  </mat-form-field>
+
+  <button mat-icon-button color="primary">
+    <mat-icon>send</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,75 @@
+.inbox-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 64px);
+}
+
+.conversation-list {
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+mat-list-item {
+  height: auto !important;
+  padding: 14px 16px !important;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+mat-list-item:hover {
+  background: #f3f6fb;
+}
+
+mat-list-item.active {
+  background: #e8efff;
+}
+
+/* Text container */
+.mat-mdc-list-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Title row */
+.title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Message preview */
+.preview {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+/* Timestamp alignment */
+.timestamp {
+  font-size: 0.7rem;
+  color: #999;
+  margin-left: auto;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.empty {
+  margin: auto;
+  color: #888;
+}
+
+/* Presence dot */
+.presence {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.presence.online {
+  background: #4caf50;
+}

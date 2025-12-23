@@ -1,1 +1,33 @@
-<p>messages works!</p>
+<div class="inbox-container">
+  <!-- Conversations -->
+  <mat-nav-list class="conversation-list">
+    @for(conversation of conversations(); track conversation.id;){
+    <mat-list-item
+      (click)="selectConversation(conversation.id)"
+      [class.active]="conversation.id === selectedConversationId()"
+    >
+      <div matLine class="title">
+        {{ conversation.otherUserId }}
+        <span class="presence online"></span>
+      </div>
+
+      <div matLine class="preview">
+        {{ conversation.lastMessage.content || 'No messages yet' }}
+      </div>
+
+      <div class="timestamp">
+        {{ conversation.lastMessage.messageSent | date : 'shortTime' }}
+      </div>
+    </mat-list-item>
+    }
+  </mat-nav-list>
+
+  <!-- message-thread -->
+  <div class="thread">
+    @if(selectedConversationId()) {
+    <app-message-thread [conversationId]="selectedConversationId()!"></app-message-thread>
+    } @else {
+    <div class="empty">Select a conversation</div>
+    }
+  </div>
+</div>
