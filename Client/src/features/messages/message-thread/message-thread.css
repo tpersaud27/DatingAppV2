@@ -20,35 +20,56 @@
   display: flex;
   flex-direction: column;
   max-width: 65%;
+  align-self: flex-start;
+  /* default: incoming */
 }
 
-/* Align my messages to the right */
+/* Outgoing (mine) */
 .message.mine {
   align-self: flex-end;
 }
 
-/* Message bubble */
+/* ===== Bubble base ===== */
 .bubble {
   padding: 10px 14px;
   border-radius: 16px;
-  background: #f1f1f1;
   font-size: 0.9rem;
+  line-height: 1.35;
   word-wrap: break-word;
   white-space: pre-wrap;
+  position: relative;
 }
 
-/* My message bubble */
+/* ===== Incoming message bubble ===== */
+.message:not(.mine) .bubble {
+  background: #f2f4f7;
+  /* softer neutral */
+  color: #222;
+  border-top-left-radius: 6px;
+  /* subtle "tail" feel */
+}
+
+/* ===== Outgoing bubble ===== */
 .message.mine .bubble {
   background: #1976d2;
-  color: white;
+  color: #fff;
+  border-top-right-radius: 6px;
 }
 
-/* Timestamp */
+/* ===== Timestamp ===== */
 .timestamp {
   font-size: 0.7rem;
-  color: #999;
-  margin-top: 2px;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* Align timestamp properly */
+.message.mine .timestamp {
   align-self: flex-end;
+}
+
+.message:not(.mine) .timestamp {
+  align-self: flex-start;
 }
 
 /* ===== Composer (input bar) ===== */
