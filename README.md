@@ -6,7 +6,7 @@
 2. [Endpoints](#endpoints)
 3. [Database Schemas](#database-schemas)
 4. [Feature Architecture](#feature-architecture)
-5. [Key Advantages](#-key-advantages)
+5. [Coding Patterns](#coding-patterns)
 
 # Overview
 
@@ -420,3 +420,13 @@ Example Usage
 | **.NET API (Existing)** | Your core **Business Logic** and data management layer. | Receives data from Lambda via REST. It handles the "heavy lifting" like saving messages to the database and validating business rules. |
 | **SQL Database** | The **Source of Truth** for all persistent data. | Stores chat history, user profiles, and metadata. It ensures that if a user refreshes their app, their history is still there. |
 | **CloudWatch** | **Monitoring and Logging** service for AWS resources. | You will use this to debug your Lambda functions and track WebSocket connection errors in real-time. |
+
+# Coding Patterns
+
+## Unit of Work
+
+- Maintains a list of objects affected by a business transaction and coordinates the writing of changes
+
+## Repository Pattern
+
+- Structural design pattern that acts as a mediator between your application's business logic and the data source (e.g. database)
