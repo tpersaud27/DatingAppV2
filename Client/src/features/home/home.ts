@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Register } from '../account/register/register';
 import { SnackBar } from '../../core/services/snack-bar-service';
+import { AuthService } from '../../core/services/auth-service';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,8 @@ import { SnackBar } from '../../core/services/snack-bar-service';
 export class Home {
   private dialog = inject(MatDialog);
   private snackBarService = inject(SnackBar);
+
+  private authService = inject(AuthService);
 
   public showRegister(): void {
     this.dialog
@@ -31,5 +34,9 @@ export class Home {
           this.snackBarService.openSuccessfullyRegisteredSnackBar();
         }
       });
+  }
+
+  public async signUpWithCognito() {
+    await this.authService.signInWithHostedUI();
   }
 }

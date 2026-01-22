@@ -13,12 +13,14 @@ import { MemberPhotos } from '../features/members/member-photos/member-photos';
 import { MemberMessages } from '../features/members/member-messages/member-messages';
 import { memberResolver } from '../features/members/member-resolver';
 import { preventUnsavedChangesGuard } from '../core/guards/prevent-unsaved-changes-guard';
+import { AuthCallback } from '../features/account/auth-callback/auth-callback';
 
 export const routes: Routes = [
   {
     path: '',
     component: Home,
   },
+  { path: 'auth/callback', component: AuthCallback },
   {
     path: '',
     runGuardsAndResolvers: 'always',
