@@ -1,9 +1,6 @@
-using System.Text;
-using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Amazon.SecurityToken;
 using API.Data;
-using API.Extensions;
 using API.Interfaces;
 using API.Middleware;
 using API.Services;
@@ -24,20 +21,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Addings CORS configuration
 builder.Services.AddCors();
 
-// Authentication
+// JWT Authentication
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var tokenKey =
-            builder.Configuration["TokenKey"]
-            ?? throw new Exception("Token key not found - Program.cs");
+        // Cognito User Pool authority
+        options.Authority = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HT1EStlQB";
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
-            ValidateIssuer = false,
+            ValidateIssuer = true,
             ValidateAudience = false,
+            NameClaimType = "sub", // optional but nice
+            RoleClaimType = "cognito:groups",
         };
     });
 
@@ -51,6 +48,8 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddAWSService<IAmazonSecurityTokenService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -70,6 +69,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.MigrateAndSeedDatabaseAsync();
+// await app.MigrateAndSeedDatabaseAsync();
 
 app.Run();

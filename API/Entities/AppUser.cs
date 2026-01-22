@@ -2,15 +2,21 @@ namespace API.Entities
 {
     public class AppUser
     {
-        // This will be our primary key in our database
+        // Primary key in our database
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public required string DisplayName { get; set; }
-        public required string Email { get; set; }
-        public string? ImageUrl { get; set; }
-        public required byte[] PasswordHash { get; set; }
-        public required byte[] PasswordSalt { get; set; }
 
-        // Navigation Property
-        public Member Member { get; set; } = null!;
+        // Auth provider (google, cognito, apple, etc.)
+        public string? AuthProvider { get; set; }
+
+        // Cognito "sub" – this is the REAL identity
+        public required string AuthUserId { get; set; }
+
+        // Email is useful but not authoritative
+        public string? Email { get; set; }
+
+        public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+
+        // Navigation property (1:1)
+        public Member? Member { get; set; }
     }
 }

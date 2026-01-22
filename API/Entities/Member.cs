@@ -5,16 +5,18 @@ namespace API.Entities
 {
     public class Member
     {
-        public string Id { get; set; } = null!;
-        public DateOnly DateOfBirth { get; set; }
+        // 1:1 relationship with AppUser
+        public string Id { get; set; } = null!; // FK to AppUser.Id
+        public DateOnly? DateOfBirth { get; set; }
         public string? ImageUrl { get; set; }
         public required string DisplayName { get; set; }
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime LastActive { get; set; } = DateTime.UtcNow;
-        public required string Gender { get; set; }
+        public string? Gender { get; set; }
         public string? Description { get; set; }
-        public required string City { get; set; }
-        public required string Country { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public bool OnboardingComplete { get; set; } = false;
 
         // Navigation Properties
         [JsonIgnore]

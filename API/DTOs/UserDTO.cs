@@ -2,10 +2,11 @@ namespace API.DTOs
 {
     public class UserDTO
     {
-        public required string Id { get; set; }
-        public required string Email { get; set; }
-        public required string DisplayName { get; set; }
-        public string? ImageUrl { get; set; }
-        public required string Token { get; set; }
+        public string Id { get; set; } = null!;
+        public string AuthUserId { get; set; } = null!;
+        public string? AuthProvider { get; set; }
+        public string? Email { get; set; }
+        public string? DisplayName { get; set; }
+        public bool OnboardingComplete { get; set; }
     }
 }

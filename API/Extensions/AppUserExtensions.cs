@@ -11,10 +11,11 @@ namespace API.Extensions
             return new UserDTO
             {
                 Id = user.Id,
-                DisplayName = user.DisplayName,
+                AuthUserId = user.AuthUserId,
+                AuthProvider = user.AuthProvider,
                 Email = user.Email,
-                ImageUrl = user.ImageUrl,
-                Token = tokenService.CreateToken(user),
+                DisplayName = user.Member?.DisplayName,
+                OnboardingComplete = user.Member?.OnboardingComplete ?? false,
             };
         }
     }

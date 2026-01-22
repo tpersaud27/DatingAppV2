@@ -22,24 +22,18 @@ namespace API.Data.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DisplayName")
+                    b.Property<string>("AuthProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthUserId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
 
                     b.HasKey("Id");
 
@@ -76,17 +70,15 @@ namespace API.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Country")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("DateOfBirth")
+                    b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -97,7 +89,6 @@ namespace API.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageUrl")
@@ -105,6 +96,9 @@ namespace API.Data.Migrations
 
                     b.Property<DateTime>("LastActive")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("OnboardingComplete")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -273,8 +267,7 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
-                    b.Navigation("Member")
-                        .IsRequired();
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("API.Entities.Conversation", b =>
