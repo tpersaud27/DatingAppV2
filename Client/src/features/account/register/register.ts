@@ -76,31 +76,30 @@ export class Register {
     });
   }
 
+  // NO LONGER USED AFTER SWITCHING TO COGNITO
   public onSubmitRegisterForm(): void {
-    if (this.registerForm.invalid || this.profileDetailsForm.invalid) return;
-
-    this.submitting.set(true);
-    // Send payload to API
-    const { confirmPassword, ...registerCredentials } = this.registerForm.value;
-    const { dateOfBirth, ...profileDetails } = this.profileDetailsForm.value;
-    const payload: RegisterDTO = {
-      ...registerCredentials,
-      ...profileDetails,
-      dateOfBirth: this.toDateOnly(dateOfBirth),
-    };
-
-    this.accountService.register(payload).subscribe({
-      next: (response) => {
-        console.log(response);
-        this.dialogRef.close(payload);
-      },
-      error: (error) => {
-        console.log(error);
-      },
-      complete: () => {
-        console.log('User completed registration.');
-      },
-    });
+    // if (this.registerForm.invalid || this.profileDetailsForm.invalid) return;
+    // this.submitting.set(true);
+    // // Send payload to API
+    // const { confirmPassword, ...registerCredentials } = this.registerForm.value;
+    // const { dateOfBirth, ...profileDetails } = this.profileDetailsForm.value;
+    // const payload: RegisterDTO = {
+    //   ...registerCredentials,
+    //   ...profileDetails,
+    //   dateOfBirth: this.toDateOnly(dateOfBirth),
+    // };
+    // this.accountService.register(payload).subscribe({
+    //   next: (response) => {
+    //     console.log(response);
+    //     this.dialogRef.close(payload);
+    //   },
+    //   error: (error) => {
+    //     console.log(error);
+    //   },
+    //   complete: () => {
+    //     console.log('User completed registration.');
+    //   },
+    // });
   }
 
   public onCloseRegisterForm(): void {
@@ -108,7 +107,7 @@ export class Register {
   }
 
   private match(
-    other: () => AbstractControl | null
+    other: () => AbstractControl | null,
   ): (control: AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       const otherCtrl = other();
