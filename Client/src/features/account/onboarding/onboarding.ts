@@ -41,7 +41,7 @@ import { OnboardingRequest } from '../../../Types/User';
 export class Onboarding {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<Onboarding, any>);
-  private accountService = inject(AccountService);
+  public accountService = inject(AccountService);
 
   public submitting = signal(false);
 

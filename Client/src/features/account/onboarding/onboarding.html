@@ -45,7 +45,14 @@
   </div>
 
   <div mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="onClose()">Cancel</button>
+    <button
+      mat-button
+      type="button"
+      (click)="onClose()"
+      [disabled]="!accountService.currentUser()?.onboardingComplete"
+    >
+      Cancel
+    </button>
     <button
       mat-flat-button
       color="primary"
