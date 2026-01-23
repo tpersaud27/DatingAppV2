@@ -1,4 +1,5 @@
 using API.Data;
+using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions
@@ -18,7 +19,7 @@ namespace API.Extensions
             {
                 var context = services.GetRequiredService<AppDbContext>(); // This is pulling the dependency manually
                 await context.Database.MigrateAsync();
-                await Seed.SeedUsers(context);
+                await UserSeedService.SeedUsersAsync(context, "Data/UserSeedData.json");
             }
             catch (Exception ex)
             {

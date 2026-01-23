@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.SecurityToken;
 using API.Data;
+using API.Extensions;
 using API.Interfaces;
 using API.Middleware;
 using API.Services;
@@ -71,6 +72,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// await app.MigrateAndSeedDatabaseAsync();
+await app.MigrateAndSeedDatabaseAsync();
 
 app.Run();
