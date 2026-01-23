@@ -9,5 +9,6 @@ namespace API.Interfaces
         Task<bool> SaveAllAsync();
         Task<Photo?> GetPhotoByIdAsync(int photoId);
         void RemovePhoto(Photo photo);
+        Task<bool> SetMainPhotoAsync(int photoId, string memberId);
     }
 }

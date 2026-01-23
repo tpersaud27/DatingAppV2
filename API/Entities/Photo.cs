@@ -7,6 +7,8 @@ namespace API.Entities
         public int Id { get; set; }
         public required string Url { get; set; }
 
+        public required bool IsMain { get; set; }
+
         // Required for S3 Delete
         public required string S3Key { get; set; }
         public string? PublicId { get; set; }

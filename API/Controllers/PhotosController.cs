@@ -55,6 +55,7 @@ namespace API.Controllers
                 Url = addPhotoDTO.Url,
                 S3Key = s3Key,
                 MemberId = memberId,
+                IsMain = false,
             };
 
             var savedPhoto = await photoRepository.AddPhotoAsync(photo);
@@ -65,11 +66,12 @@ namespace API.Controllers
                     savedPhoto.Id,
                     savedPhoto.Url,
                     savedPhoto.MemberId,
+                    savedPhoto.IsMain,
                 }
             );
         }
 
-        [HttpDelete("{photoId:int}")]
+        [HttpDelete("{photoId:int}")] //api/photos/id
         public async Task<IActionResult> DeletePhoto(int photoId)
         {
             var photo = await photoRepository.GetPhotoByIdAsync(photoId);
@@ -93,6 +95,19 @@ namespace API.Controllers
             // 🗑 Remove DB record
             photoRepository.RemovePhoto(photo);
             await photoRepository.SaveAllAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{photoId:int}/set-main")] //api/photos/id/set-main
+        public async Task<IActionResult> SetMainPhoto(int photoId)
+        {
+            var member = await memberAccessor.GetCurrentMemberForUpdateAsync();
+
+            var isMainImageSet = await photoRepository.SetMainPhotoAsync(photoId, member.Id);
+
+            if (!isMainImageSet)
+                return BadRequest("Failed to set main photo");
 
             return NoContent();
         }
