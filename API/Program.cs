@@ -43,6 +43,7 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IMemberAccessor, MemberAccessor>();
 
 // AWS S3 Services
 builder.Services.AddAWSService<IAmazonS3>();
@@ -50,6 +51,7 @@ builder.Services.AddAWSService<IAmazonSecurityTokenService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
