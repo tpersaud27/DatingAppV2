@@ -56,29 +56,6 @@ export class AccountService {
     return this.http.put<void>(this.baseUrl + 'account/onboarding', onboardingRequest);
   }
 
-  // NO LONGER USED AFTER SWITCHING TO COGNITO
-  // public register(registerCredentials: RegisterCredentials) {
-  //   // After user is register we need to log them in
-  //   return this.http.post<User>(this.baseUrl + 'account/register', registerCredentials).pipe(
-  //     tap((user) => {
-  //       if (user) {
-  //         this.setCurrentUser(user);
-  //       }
-  //     }),
-  //   );
-  // }
-
-  // NO LONGER USED AFTER SWITCHING TO COGNITO
-  // public login(userCredentials: LoginCredentials) {
-  //   return this.http.post<User>(this.baseUrl + 'account/login', userCredentials).pipe(
-  //     tap((user) => {
-  //       if (user) {
-  //         this.setCurrentUser(user);
-  //       }
-  //     }),
-  //   );
-  // }
-
   public logout(): void {
     // Remove user from local storage
     localStorage.removeItem('user');
@@ -108,4 +85,27 @@ export class AccountService {
         }
       });
   }
+
+  // NO LONGER USED AFTER SWITCHING TO COGNITO
+  // public register(registerCredentials: RegisterCredentials) {
+  //   // After user is register we need to log them in
+  //   return this.http.post<User>(this.baseUrl + 'account/register', registerCredentials).pipe(
+  //     tap((user) => {
+  //       if (user) {
+  //         this.setCurrentUser(user);
+  //       }
+  //     }),
+  //   );
+  // }
+
+  // NO LONGER USED AFTER SWITCHING TO COGNITO
+  // public login(userCredentials: LoginCredentials) {
+  //   return this.http.post<User>(this.baseUrl + 'account/login', userCredentials).pipe(
+  //     tap((user) => {
+  //       if (user) {
+  //         this.setCurrentUser(user);
+  //       }
+  //     }),
+  //   );
+  // }
 }
