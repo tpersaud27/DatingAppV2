@@ -4,14 +4,18 @@ using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [Authorize]
-    public class PhotosController(IS3Service s3Service, IPhotoRepository photoRepository)
-        : BaseApiController
+    public class PhotosController(
+        IS3Service s3Service,
+        IPhotoRepository photoRepository,
+        IMemberAccessor memberAccessor
+    ) : BaseApiController
     {
         [HttpPost("presign")] // api/photos/presign
         public ActionResult<S3PhotoDTO.PresignResponse> Presign(
@@ -32,7 +36,8 @@ namespace API.Controllers
             }
 
             // We need to add the Photo URl to the Member's Photos collection
-            var memberId = User.GetMemberId();
+            var member = await memberAccessor.GetCurrentMemberForUpdateAsync();
+            var memberId = member.Id;
 
             if (string.IsNullOrWhiteSpace(memberId))
             {
@@ -71,8 +76,11 @@ namespace API.Controllers
             if (photo == null)
                 return NotFound();
 
+            // 🔐 Resolve current DB Member (not Cognito sub)
+            var member = await memberAccessor.GetCurrentMemberAsync();
+            var currentUserId = member.Id;
+
             // 🔐 Ownership check
-            var currentUserId = User.GetMemberId();
             if (photo.MemberId != currentUserId)
                 return Forbid();
 
