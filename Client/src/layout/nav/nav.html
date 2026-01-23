@@ -12,44 +12,44 @@
       <span class="app-title">Dating App</span>
     </button>
 
-    @if(accountService.currentUser()){
-    <nav class="nav-links" aria-label="primary">
-      <a
-        mat-button
-        routerLink="/members"
-        routerLinkActive="active-btn"
-        [routerLinkActiveOptions]="{ exact: true }"
-        >Matches</a
-      >
-      <a
-        mat-button
-        routerLink="/lists"
-        routerLinkActive="active-btn"
-        [routerLinkActiveOptions]="{ exact: true }"
-        >Lists</a
-      >
-      <a
-        mat-button
-        routerLink="/messages"
-        routerLinkActive="active-btn"
-        [routerLinkActiveOptions]="{ exact: true }"
-        >Messages</a
-      >
-    </nav>
+    @if (accountService.currentUser()) {
+      <nav class="nav-links" aria-label="primary">
+        <a
+          mat-button
+          routerLink="/members"
+          routerLinkActive="active-btn"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Matches</a
+        >
+        <a
+          mat-button
+          routerLink="/lists"
+          routerLinkActive="active-btn"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Lists</a
+        >
+        <a
+          mat-button
+          routerLink="/messages"
+          routerLinkActive="active-btn"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Messages</a
+        >
+      </nav>
     }
   </div>
 
   <div class="auth-section">
-    @if(accountService.currentUser(); as user){
-    <div class="user-menu">
-      <button mat-button [matMenuTriggerFor]="profileMenu">
-        <img [src]="user?.imageUrl || '/user.png'" alt="avatar" class="avatar-icon" />
-        <span class="user-name">{{ user.displayName }}</span>
-      </button>
-    </div>
-    } @else{
-    <form [formGroup]="loginForm" (ngSubmit)="login()" class="auth-form" autocomplete="on">
-      <input
+    @if (accountService.currentUser(); as user) {
+      <div class="user-menu">
+        <button mat-button [matMenuTriggerFor]="profileMenu">
+          <img [src]="'/user.png'" alt="avatar" class="avatar-icon" />
+          <span class="user-name">{{ user.displayName }}</span>
+        </button>
+      </div>
+    } @else {
+      <form (ngSubmit)="onLogin()" class="auth-form" autocomplete="on">
+        <!-- <input
         matInput
         class="auth-input"
         formControlName="email"
@@ -79,10 +79,10 @@
         >
           <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-      </div>
+      </div> -->
 
-      <button mat-flat-button color="accent" type="submit">Login</button>
-    </form>
+        <button mat-flat-button color="accent" type="submit">Login</button>
+      </form>
     }
   </div>
 </mat-toolbar>
