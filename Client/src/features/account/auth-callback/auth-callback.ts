@@ -2,9 +2,6 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth-service';
 import { AccountService } from '../../../core/services/account-service';
-import { SnackBar } from '../../../core/services/snack-bar-service';
-import { MatDialog } from '@angular/material/dialog';
-import { Onboarding } from '../onboarding/onboarding';
 
 @Component({
   selector: 'app-auth-callback',
@@ -17,8 +14,6 @@ export class AuthCallback {
   private router = inject(Router);
   private auth = inject(AuthService);
   private accountService = inject(AccountService);
-  private snackBarService = inject(SnackBar);
-  private dialog = inject(MatDialog);
 
   public async ngOnInit(): Promise<void> {
     // 1️⃣ Read query parameters from the redirect URL
@@ -51,29 +46,10 @@ export class AuthCallback {
         this.router.navigateByUrl('/'); // Navigate to home
         // Check if user is onboarded (i.e. basic profile information is submitted)
         this.accountService.bootstrapUser();
-        if (!this.accountService.currentUser()?.onboardingComplete) {
-          this.showUserOnboading();
-        }
       })
       .catch((err) => {
         console.error(err);
         this.router.navigateByUrl('/');
-      });
-  }
-
-  public showUserOnboading(): void {
-    this.dialog
-      .open(Onboarding, {
-        width: '560px',
-        maxWidth: '95vw',
-        autoFocus: 'first-tabbable',
-        disableClose: true,
-      })
-      .afterClosed()
-      .subscribe((data: any) => {
-        if (data) {
-          this.snackBarService.openSuccessfullyRegisteredSnackBar();
-        }
       });
   }
 }

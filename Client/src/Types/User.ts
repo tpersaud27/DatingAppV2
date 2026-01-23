@@ -1,12 +1,4 @@
 export interface User {
-  id: string;
-  displayName: string;
-  email: string;
-  token?: string;
-  imageUrl?: string;
-}
-
-export interface UserDTO {
   authProvider: string;
   authUserId: string;
   displayName: string;
