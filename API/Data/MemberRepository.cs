@@ -40,5 +40,12 @@ namespace API.Data
         {
             context.Entry(member).State = EntityState.Modified;
         }
+
+        public async Task<Member?> GetMemberForUpdateByAuthUserId(string authUserId)
+        {
+            return await context
+                .Members.Include(x => x.User)
+                .SingleOrDefaultAsync(x => x.User.AuthUserId == authUserId);
+        }
     }
 }

@@ -54,9 +54,10 @@ namespace API.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateMember(MemberUpdateDTO memberUpdateDTO)
         {
-            var memberId = User.GetMemberId();
+            // 1) Get Cognito sub from JWT
+            var authUserId = User.GetAuthUserId();
 
-            var member = await memberRepository.GetMemberForUpdate(memberId);
+            var member = await memberRepository.GetMemberForUpdateByAuthUserId(authUserId);
 
             if (member == null)
             {
@@ -67,9 +68,6 @@ namespace API.Controllers
             member.Description = memberUpdateDTO.Description ?? member.Description;
             member.City = memberUpdateDTO.City ?? member.City;
             member.Country = memberUpdateDTO.Country ?? member.Country;
-
-            // We also update the User entity displayName as well
-            member.User.DisplayName = memberUpdateDTO.DisplayName ?? member.User.DisplayName;
 
             // This is optional because we will be checking if the member has changed
             // We will check on the front-end but this is good to have anyways
