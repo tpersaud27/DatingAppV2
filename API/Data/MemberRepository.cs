@@ -47,5 +47,12 @@ namespace API.Data
                 .Members.Include(x => x.User)
                 .SingleOrDefaultAsync(x => x.User.AuthUserId == authUserId);
         }
+
+        public Task<Member?> GetMemberByAuthUserIdAsync(string authUserId)
+        {
+            return context
+                .Members.AsNoTracking() // No tracking just retrieving
+                .SingleOrDefaultAsync(m => m.User.AuthUserId == authUserId);
+        }
     }
 }

@@ -3,6 +3,7 @@ using API.DTOs;
 using API.Entities;
 using API.Extensions;
 using API.Interfaces;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,22 +11,18 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers
 {
     [Authorize]
-    public class MessagesController : BaseApiController
+    public class MessagesController(
+        IMessageRepository messageRepository,
+        AppDbContext context,
+        IMemberAccessor memberAccessor
+    ) : BaseApiController
     {
-        private readonly IMessageRepository messageRepository;
-        private readonly AppDbContext context;
-
-        public MessagesController(IMessageRepository messageRepository, AppDbContext context)
-        {
-            this.messageRepository = messageRepository;
-            this.context = context;
-        }
-
         // POST: api/messages
         [HttpPost]
         public async Task<ActionResult<MessageDto>> SendMessage([FromBody] CreateMessageDto dto)
         {
-            var senderId = User.GetMemberId();
+            var senderMember = await memberAccessor.GetCurrentMemberAsync();
+            var senderId = senderMember.Id;
 
             var conversation = await messageRepository.GetOrCreateConversationAsync(
                 senderId,
@@ -66,7 +63,8 @@ namespace API.Controllers
             [FromQuery] DateTime? before = null
         )
         {
-            var userId = User.GetMemberId();
+            var user = await memberAccessor.GetCurrentMemberAsync();
+            var userId = user.Id;
 
             var messages = await messageRepository.GetMessagesAsync(
                 conversationId,
@@ -93,7 +91,9 @@ namespace API.Controllers
         [HttpGet("conversations")]
         public async Task<ActionResult<IReadOnlyList<Conversation>>> GetConversations()
         {
-            var userId = User.GetMemberId();
+            var user = await memberAccessor.GetCurrentMemberAsync();
+            var userId = user.Id;
+
             var conversations = await messageRepository.GetUserConversationsAsync(userId);
 
             // Collect all "other" user IDs
@@ -138,7 +138,8 @@ namespace API.Controllers
         [HttpGet("conversations/with/{otherUserId}")]
         public async Task<ActionResult<ConversationDTO>> GetConversationWithUser(string otherUserId)
         {
-            var currentUserId = User.GetMemberId();
+            var currentUser = await memberAccessor.GetCurrentMemberAsync();
+            var currentUserId = currentUser.Id;
 
             var conversation = await messageRepository.GetOrCreateConversationAsync(
                 currentUserId,
