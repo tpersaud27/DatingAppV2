@@ -60,7 +60,7 @@ export class Nav {
     // });
   }
 
-  public logout(): void {
+  public onLogout(): void {
     // Remove user from local storage
     this.accountService.logout();
     // Redirect user to home screen after logging out
@@ -68,7 +68,7 @@ export class Nav {
     this.snackBarService.openLogoutSnackBar();
   }
 
-  public editProfile(): void {
+  public onEditProfile(): void {
     this.router.navigate([`/members/${this.accountService.currentUser()?.id}/profile`]);
   }
 }
