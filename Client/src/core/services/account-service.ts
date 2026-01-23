@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { LoginCredentials, RegisterCredentials, User, UserDTO } from '../../Types/User';
-import { tap } from 'rxjs';
+import {
+  LoginCredentials,
+  OnboardingRequest,
+  RegisterCredentials,
+  User,
+  UserDTO,
+} from '../../Types/User';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesServices } from './likes-services';
 
@@ -15,13 +21,18 @@ export class AccountService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
-  public bootstrapUser() {
-    this.http.post<any>(this.baseUrl + 'account/bootstrap', {}).subscribe((user) => {
+  public bootstrapUser(): void {
+    this.http.post<UserDTO>(this.baseUrl + 'account/bootstrap', {}).subscribe((user) => {
       this.setCurrentUser(user);
       console.log('Current User ', this.currentUser());
     });
   }
 
+  public completeOnboarding(onboardingRequest: OnboardingRequest): Observable<void> {
+    return this.http.put<void>(this.baseUrl + 'account/onboarding', onboardingRequest);
+  }
+
+  // NO LONGER USED AFTER SWITCHING TO COGNITO
   public register(registerCredentials: RegisterCredentials) {
     // After user is register we need to log them in
     return this.http.post<User>(this.baseUrl + 'account/register', registerCredentials).pipe(
@@ -33,6 +44,7 @@ export class AccountService {
     );
   }
 
+  // NO LONGER USED AFTER SWITCHING TO COGNITO
   public login(userCredentials: LoginCredentials) {
     return this.http.post<User>(this.baseUrl + 'account/login', userCredentials).pipe(
       tap((user) => {

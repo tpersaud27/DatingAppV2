@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
+  FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
@@ -18,6 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AccountService } from '../../../core/services/account-service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
+import { OnboardingRequest } from '../../../Types/User';
 
 @Component({
   selector: 'app-onboarding',
@@ -43,15 +45,11 @@ export class Onboarding {
 
   public submitting = signal(false);
 
-  onboardingForm = this.fb.group({
-    displayName: ['', [Validators.required, Validators.minLength(3)]],
-    gender: ['', Validators.required],
-    dateOfBirth: ['', [Validators.required, this.minAgeValidator(18)]],
-    city: ['', Validators.required],
-    country: ['', Validators.required],
-  });
+  public onboardingForm: FormGroup = this.fb.group({});
 
   constructor() {
+    this.initializeOnboardingForm();
+
     // This effect runs whenever the currentUser signal changes
     effect(() => {
       const user = this.accountService.currentUser();
@@ -65,12 +63,38 @@ export class Onboarding {
     });
   }
 
-  public onSubmit() {
-    this.submitting.set(true);
+  public initializeOnboardingForm(): void {
+    this.onboardingForm = this.fb.group({
+      displayName: ['', [Validators.required, Validators.minLength(3)]],
+      gender: ['', Validators.required],
+      dateOfBirth: ['', [Validators.required, this.minAgeValidator(18)]],
+      city: ['', Validators.required],
+      country: ['', Validators.required],
+    });
+  }
 
+  public onSubmit() {
     if (this.onboardingForm.valid) {
       console.log('Form Data:', this.onboardingForm.getRawValue());
-      this.dialogRef.close(this.onboardingForm.getRawValue());
+      this.submitting.set(true);
+      const { dateOfBirth, ...profileDetails } = this.onboardingForm.value;
+      const onboardingRequest: OnboardingRequest = {
+        ...profileDetails,
+        dateOfBirth: this.toDateOnly(dateOfBirth),
+      };
+
+      this.accountService.completeOnboarding(onboardingRequest).subscribe({
+        next: (response) => {
+          console.log('OnBoarding Response ', response);
+          this.dialogRef.close(onboardingRequest);
+        },
+        error: (error) => {
+          console.log('Error onboarding ', error);
+        },
+        complete: () => {
+          console.log('User completed registration');
+        },
+      });
     }
   }
 
@@ -96,5 +120,9 @@ export class Onboarding {
 
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
+  }
+
+  private toDateOnly(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 }

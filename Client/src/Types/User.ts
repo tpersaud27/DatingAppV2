@@ -15,6 +15,15 @@ export interface UserDTO {
   onboardingComplete: false;
 }
 
+export interface OnboardingRequest {
+  displayName: string;
+  gender: string;
+  dateOfBirth: string; // ISO format: YYYY-MM-DD
+  city: string;
+  country: string;
+  description?: string;
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;

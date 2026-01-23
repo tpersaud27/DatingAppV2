@@ -1,6 +1,6 @@
 <h2 mat-dialog-title class="title">Enter Profile Details</h2>
 
-<form [formGroup]="onboardingForm">
+<form [formGroup]="onboardingForm" (ngSubmit)="onSubmit()">
   <div mat-dialog-content class="form-grid">
     <mat-form-field appearance="outline" class="span-2">
       <mat-label>Display Name</mat-label>

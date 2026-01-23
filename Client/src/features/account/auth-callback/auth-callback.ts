@@ -52,7 +52,6 @@ export class AuthCallback {
         // Check if user is onboarded (i.e. basic profile information is submitted)
         this.accountService.bootstrapUser();
         if (!this.accountService.currentUser()?.onboardingComplete) {
-          console.log('User needs onboarding');
           this.showUserOnboading();
         }
       })
