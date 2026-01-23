@@ -29,7 +29,10 @@ export class MemberPhotos {
     const memberId = this.memberService.member()?.id;
     if (memberId) {
       this.memberService.getMemberPhotos(memberId).subscribe({
-        next: (photos) => this.photos.set(photos),
+        next: (photos) => {
+          this.photos.set(photos);
+          console.log('Member Photos', photos);
+        },
       });
     }
 
@@ -62,6 +65,23 @@ export class MemberPhotos {
         console.error('Failed to delete photo', err);
         // rollback if delete fails
         this.photos.update((current) => [...current, photo]);
+      },
+    });
+  }
+
+  public onSetAsMain(photo: Photo): void {
+    this.photoService.setAsMainPhoto(photo.id).subscribe({
+      next: () => {
+        // Optimistically update UI
+        this.photos.update((photos) =>
+          photos.map((p) => ({
+            ...p,
+            isMain: p.id === photo.id,
+          })),
+        );
+      },
+      error: (err) => {
+        console.error('Failed to set main photo', err);
       },
     });
   }

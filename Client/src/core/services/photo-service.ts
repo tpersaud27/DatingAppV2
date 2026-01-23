@@ -46,7 +46,11 @@ export class PhotoService {
     });
   }
 
-  public deletePhoto(photoId: number) {
+  public deletePhoto(photoId: number): Observable<Object> {
     return this.http.delete(this.baseUrl + `photos/${photoId}`);
+  }
+
+  public setAsMainPhoto(photoId: number): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}photos/${photoId}/set-main`, {});
   }
 }

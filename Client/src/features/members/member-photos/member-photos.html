@@ -1,28 +1,41 @@
 <!-- This will display option to upload photo via drag and drop instead of just button -->
 
-
 <!-- This is will display user photos if any exist -->
 @if (photos().length > 0) {
-<div class="photo-grid">
-  @for (photo of photos(); track photo.id) {
-  <div class="photo-wrapper">
-    <img class="photo" [src]="photo.url" alt="photo of member" />
+  <div class="photo-grid">
+    @for (photo of photos(); track photo.id) {
+      <div class="photo-wrapper">
+        <img class="photo" [src]="photo.url" alt="photo of member" />
 
-    <!-- Delete button (hover only) -->
-    <button
-      mat-icon-button
-      color="warn"
-      class="delete-btn"
-      (click)="onDeletePhoto(photo)"
-      aria-label="Delete photo"
-    >
-      <mat-icon>delete</mat-icon>
-    </button>
+        <!-- ⭐ Set as Main icon -->
+        <button
+          mat-icon-button
+          class="main-icon"
+          [class.main-active]="photo.isMain"
+          [disabled]="photo.isMain"
+          (click)="onSetAsMain(photo)"
+          aria-label="Set as main photo"
+        >
+          <mat-icon>
+            {{ photo.isMain ? 'star' : 'star_border' }}
+          </mat-icon>
+        </button>
+
+        <!-- Delete button (hover only) -->
+        <button
+          mat-icon-button
+          color="warn"
+          class="delete-btn"
+          (click)="onDeletePhoto(photo)"
+          aria-label="Delete photo"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
   </div>
-  }
-</div>
 } @else {
-<p>No Photos Available</p>
+  <p>No Photos Available</p>
 }
 
 <input
@@ -35,5 +48,5 @@
 />
 
 @if (isUploading()) {
-<mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0"></mat-progress-bar>
+  <mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0"></mat-progress-bar>
 }

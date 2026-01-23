@@ -30,11 +30,45 @@
   color: white;
 }
 
-/* Show on hover */
-.photo-wrapper:hover .delete-btn {
+/* ⭐ Main icon (top-left) */
+.main-icon {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 150ms ease, transform 150ms ease;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+/* Show buttons on hover */
+.photo-wrapper:hover .delete-btn,
+.photo-wrapper:hover .main-icon {
   opacity: 1;
   transform: scale(1);
 }
+
+/* ⭐ When main, always visible + highlighted */
+.main-icon.main-active {
+  opacity: 1;
+  transform: scale(1);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fbc02d;
+  /* highlighted star */
+}
+
+/* Keep main star looking clickable even if disabled */
+.main-icon[disabled] {
+  cursor: default;
+  opacity: 1;
+}
+
+/* Optional: hover glow for non-main star */
+.photo-wrapper:hover .main-icon:not(.main-active) {
+  color: #fbc02d;
+}
+
 @media (max-width: 900px) {
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
