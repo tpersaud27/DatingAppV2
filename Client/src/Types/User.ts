@@ -4,7 +4,8 @@ export interface User {
   displayName: string;
   email: string;
   id: string;
-  onboardingComplete: false;
+  onboardingComplete: boolean;
+  imageUrl?: string;
 }
 
 export interface OnboardingRequest {

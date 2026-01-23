@@ -43,7 +43,7 @@
     @if (accountService.currentUser(); as user) {
       <div class="user-menu">
         <button mat-button [matMenuTriggerFor]="profileMenu">
-          <img [src]="'/user.png'" alt="avatar" class="avatar-icon" />
+          <img [src]="user.imageUrl ?? '/user.png'" alt="avatar" class="avatar-icon" />
           <span class="user-name">{{ user.displayName }}</span>
         </button>
       </div>
