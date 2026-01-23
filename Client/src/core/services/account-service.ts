@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { LoginCredentials, RegisterCredentials, User } from '../../Types/User';
+import { LoginCredentials, RegisterCredentials, User, UserDTO } from '../../Types/User';
 import { tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesServices } from './likes-services';
@@ -9,11 +9,18 @@ import { LikesServices } from './likes-services';
   providedIn: 'root',
 })
 export class AccountService {
-  public currentUser = signal<User | null>(null);
+  public currentUser = signal<any>(null);
 
   private likesService = inject(LikesServices);
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
+
+  public bootstrapUser() {
+    this.http.post<any>(this.baseUrl + 'account/bootstrap', {}).subscribe((user) => {
+      this.setCurrentUser(user);
+      console.log('Current User ', this.currentUser());
+    });
+  }
 
   public register(registerCredentials: RegisterCredentials) {
     // After user is register we need to log them in
@@ -22,7 +29,7 @@ export class AccountService {
         if (user) {
           this.setCurrentUser(user);
         }
-      })
+      }),
     );
   }
 
@@ -32,7 +39,7 @@ export class AccountService {
         if (user) {
           this.setCurrentUser(user);
         }
-      })
+      }),
     );
   }
 

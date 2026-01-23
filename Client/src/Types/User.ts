@@ -2,8 +2,17 @@ export interface User {
   id: string;
   displayName: string;
   email: string;
-  token: string;
+  token?: string;
   imageUrl?: string;
+}
+
+export interface UserDTO {
+  authProvider: string;
+  authUserId: string;
+  displayName: string;
+  email: string;
+  id: string;
+  onboardingComplete: false;
 }
 
 export interface LoginCredentials {

@@ -52,7 +52,7 @@ export class AuthService {
     window.location.assign(`${domain}/oauth2/authorize?${params.toString()}`);
   }
 
-  async handleAuthCallback(code: string, state?: string | null): Promise<TokenResponse> {
+  public async handleAuthCallback(code: string, state?: string | null): Promise<TokenResponse> {
     // 1️⃣ Validate the returned state to prevent CSRF attacks
     const expectedState = sessionStorage.getItem('oauth_state');
     if (expectedState && state && expectedState !== state) {

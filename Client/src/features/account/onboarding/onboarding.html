@@ -1,0 +1,58 @@
+<h2 mat-dialog-title class="title">Enter Profile Details</h2>
+
+<form [formGroup]="onboardingForm">
+  <div mat-dialog-content class="form-grid">
+    <mat-form-field appearance="outline" class="span-2">
+      <mat-label>Display Name</mat-label>
+      <input matInput type="text" formControlName="displayName" />
+      @if (onboardingForm.get('displayName')?.hasError('required')) {
+        <mat-error>Gender is required</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Gender</mat-label>
+      <input matInput type="text" formControlName="gender" />
+      @if (onboardingForm.get('gender')?.hasError('required')) {
+        <mat-error>Gender is required</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Date of Birth</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      @if (onboardingForm.get('dateOfBirth')?.hasError('required')) {
+        <mat-error>Date of Birth is required</mat-error>
+      }
+      @if (onboardingForm.get('dateOfBirth')?.hasError('minAge')) {
+        <mat-error>You must be at least 18 years old</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>City</mat-label>
+      <input matInput type="text" formControlName="city" />
+      @if (onboardingForm.get('city')?.hasError('required')) {
+        <mat-error>City is required</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Country</mat-label>
+      <input matInput type="text" formControlName="country" />
+      @if (onboardingForm.get('country')?.hasError('required')) {
+        <mat-error>Country is required</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onClose()">Cancel</button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="onboardingForm.invalid || submitting()"
+    >
+      {{ submitting() ? 'Creating…' : 'Create account' }}
+    </button>
+  </div>
+</form>
