@@ -52,10 +52,13 @@
               <span matListItemTitle>Photos</span>
             </a>
 
-            <a mat-list-item routerLink="messages" routerLinkActive="active-link">
-              <mat-icon matListItemIcon>message</mat-icon>
-              <span matListItemTitle>Messages</span>
-            </a>
+            <!-- Do not allow user to view messages if they are on their own profile -->
+            @if (accountService.currentUser()?.id !== member.id) {
+              <a mat-list-item routerLink="messages" routerLinkActive="active-link">
+                <mat-icon matListItemIcon>message</mat-icon>
+                <span matListItemTitle>Messages</span>
+              </a>
+            }
           </mat-nav-list>
         </mat-card-content>
 

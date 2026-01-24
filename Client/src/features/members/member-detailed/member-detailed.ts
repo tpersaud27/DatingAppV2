@@ -35,9 +35,9 @@ export class MemberDetailed implements OnInit {
 
   public memberService = inject(MemberService);
   public likesService = inject(LikesServices);
+  public accountService = inject(AccountService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private accountService = inject(AccountService);
   private photoService = inject(PhotoService);
 
   // State
