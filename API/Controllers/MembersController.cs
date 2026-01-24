@@ -1,3 +1,4 @@
+using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
@@ -8,8 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Authorize]
-    public class MembersController(IMemberRepository memberRepository, IConfiguration config)
-        : BaseApiController
+    public class MembersController(
+        IMemberRepository memberRepository,
+        IPhotoRepository photoRepository,
+        IConfiguration config
+    ) : BaseApiController
     {
         // Action Result allows us to return a HTTP Response
         // Task allows us to return a async operation
@@ -28,6 +32,19 @@ namespace API.Controllers
             if (member == null)
             {
                 return NotFound();
+            }
+
+            // Getting the member main photo
+            var mainPhoto = await photoRepository.GetMainPhoto(member.Id);
+
+            var cloudFrontBaseUrl = config["CloudFront:BaseUrl"];
+            // If the user has a mainPhoto then we set the cloudFrontUrl
+            if (mainPhoto != null)
+            {
+                member.ImageUrl =
+                    mainPhoto.S3Key == "external"
+                        ? mainPhoto.Url
+                        : $"{cloudFrontBaseUrl}/{mainPhoto.S3Key}";
             }
 
             return member;

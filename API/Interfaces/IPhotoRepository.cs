@@ -10,5 +10,6 @@ namespace API.Interfaces
         Task<Photo?> GetPhotoByIdAsync(int photoId);
         void RemovePhoto(Photo photo);
         Task<bool> SetMainPhotoAsync(int photoId, string memberId);
+        Task<Photo?> GetMainPhoto(string memberId);
     }
 }

@@ -82,5 +82,12 @@ namespace API.Data
 
             return await SaveAllAsync();
         }
+
+        public async Task<Photo?> GetMainPhoto(string memberId)
+        {
+            return await context
+                .Photos.AsNoTracking()
+                .SingleOrDefaultAsync(p => p.MemberId == memberId && p.IsMain);
+        }
     }
 }
