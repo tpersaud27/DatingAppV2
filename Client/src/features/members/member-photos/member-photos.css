@@ -27,7 +27,7 @@
   transform: scale(0.9);
   transition: opacity 150ms ease, transform 150ms ease;
   background: rgba(0, 0, 0, 0.6);
-  color: white;
+  color: red;
 }
 
 /* ⭐ Main icon (top-left) */

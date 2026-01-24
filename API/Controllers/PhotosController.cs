@@ -1,8 +1,5 @@
-using Amazon.SecurityToken;
-using Amazon.SecurityToken.Model;
 using API.DTOs;
 using API.Entities;
-using API.Extensions;
 using API.Interfaces;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
