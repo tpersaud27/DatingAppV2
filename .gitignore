@@ -119,4 +119,4 @@ secrets.json
 API/dating.db*
 API/appsettings.json
 
-/src/environments/environment.development.ts
+Client/src/environments/environment.development.ts
