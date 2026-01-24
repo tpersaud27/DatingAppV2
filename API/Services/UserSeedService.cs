@@ -54,7 +54,7 @@ namespace API.Services
                     CreatedAtUtc = DateTime.Now,
                 };
 
-                appUser.Member = new Member
+                var member = new Member
                 {
                     Id = appUser.Id, // 1:1 mapping
                     DisplayName = s.Email.Split('@')[0],
@@ -64,6 +64,19 @@ namespace API.Services
                     Country = "USA",
                     Gender = "Female",
                 };
+
+                // Create a main photo record for the member
+                var photo = new Photo
+                {
+                    Url = imageUrl,
+                    S3Key = "external", // important for your CloudFront mapping logic
+                    IsMain = true,
+                    Member = member,
+                };
+
+                member.Photos.Add(photo);
+
+                appUser.Member = member;
 
                 context.Users.Add(appUser);
             }
