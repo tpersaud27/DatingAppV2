@@ -27,8 +27,12 @@ export class LikesServices {
       catchError((err: HttpErrorResponse) => {
         console.error('Failed to load likes', err);
         return of([]);
-      })
+      }),
     );
+  }
+
+  public hasLiked(memberId: string): boolean {
+    return this.likedIds().includes(memberId);
   }
 
   // Just for resetting the signal in the case of the user logging out and logging into a new user

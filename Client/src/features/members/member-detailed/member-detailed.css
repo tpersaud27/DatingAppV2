@@ -95,6 +95,13 @@
   margin-right: 0.4rem;
 }
 
+/* Liked state */
+.like-btn.liked mat-icon {
+  color: #e53935;
+  /* Material red */
+  transform: scale(1.1);
+}
+
 /* RIGHT COLUMN */
 .right-column {
   flex: 1;

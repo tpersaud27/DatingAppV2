@@ -12,6 +12,7 @@ import { DatePipe, TitleCasePipe } from '@angular/common';
 import { AgePipe } from '../../../core/pipes/age-pipe';
 import { AccountService } from '../../../core/services/account-service';
 import { PhotoService } from '../../../core/services/photo-service';
+import { LikesServices } from '../../../core/services/likes-services';
 
 @Component({
   selector: 'app-member-detailed',
@@ -30,11 +31,16 @@ import { PhotoService } from '../../../core/services/photo-service';
   styleUrl: './member-detailed.css',
 })
 export class MemberDetailed implements OnInit {
+  // Dependencies
+
   public memberService = inject(MemberService);
+  public likesService = inject(LikesServices);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private accountService = inject(AccountService);
   private photoService = inject(PhotoService);
+
+  // State
 
   public title = signal<string | undefined>('Profile');
   // This signal checks if the user logged in is viewing their profile from the matches tab
@@ -44,6 +50,8 @@ export class MemberDetailed implements OnInit {
 
   public editProfile = 'Edit Profile';
   public cancelEdit = 'Cancel';
+
+  // LIfeCycle
 
   ngOnInit() {
     // This allowes us to get the child routes title
@@ -57,22 +65,19 @@ export class MemberDetailed implements OnInit {
     });
   }
 
-  // This code is no longer needed because we are getting the memeber object from the route instead
-  // Getting the member id to load their details
-  // public loadMember(): Observable<Member | null> {
-  //   // This is will get us the root parameter that has the key of id
-  //   const id = this.route.snapshot.paramMap.get('id');
-  //   if (!id) {
-  //     return of(null);
-  //   } else {
-  //     return this.memberService.getMember(id);
-  //   }
-  // }
+  // Actions
 
   public onLike(member: Member | null): void {
     if (!member) return;
-    // TODO: hook into your like API
-    console.log('Liked member:', member.displayName);
+
+    this.likesService.toggleLike(member.id).subscribe({
+      next: () => {
+        this.likesService.getLikeIds().subscribe();
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 
   public onBack(): void {
@@ -89,4 +94,16 @@ export class MemberDetailed implements OnInit {
     this.photoService.triggerOpenFilePicker();
     console.log('Add Photo Clicked ', this.photoService.openFilePicker());
   }
+
+  // This code is no longer needed because we are getting the memeber object from the route instead
+  // Getting the member id to load their details
+  // public loadMember(): Observable<Member | null> {
+  //   // This is will get us the root parameter that has the key of id
+  //   const id = this.route.snapshot.paramMap.get('id');
+  //   if (!id) {
+  //     return of(null);
+  //   } else {
+  //     return this.memberService.getMember(id);
+  //   }
+  // }
 }

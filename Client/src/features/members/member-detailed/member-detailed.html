@@ -1,111 +1,123 @@
 <div class="page-container">
   @if (memberService.member(); as member) {
+    <!-- LEFT COLUMN – user info & navigation -->
+    <div class="left-column">
+      <mat-card class="member-card" appearance="outlined">
+        <!-- Header section -->
+        <mat-card-header>
+          <div mat-card-avatar class="avatar-wrapper">
+            <img [src]="member.imageUrl || '/user.png'" alt="User avatar" class="avatar-img" />
+          </div>
+          <mat-card-title>{{ member.displayName }}</mat-card-title>
+          <mat-card-subtitle> {{ member.city }}, {{ member.country }} </mat-card-subtitle>
+        </mat-card-header>
 
-  <!-- LEFT COLUMN – user info & navigation -->
-  <div class="left-column">
-    <mat-card class="member-card" appearance="outlined">
-      <!-- Header section -->
-      <mat-card-header>
-        <div mat-card-avatar class="avatar-wrapper">
-          <img [src]="member.imageUrl || '/user.png'" alt="User avatar" class="avatar-img" />
-        </div>
-        <mat-card-title>{{ member.displayName }}</mat-card-title>
-        <mat-card-subtitle> {{ member.city }}, {{ member.country }} </mat-card-subtitle>
-      </mat-card-header>
+        <!-- Main content -->
+        <mat-card-content>
+          <div class="member-meta">
+            <div class="meta-row">
+              <mat-icon>person</mat-icon>
+              <span>{{ member.gender | titlecase }}</span>
+            </div>
 
-      <!-- Main content -->
-      <mat-card-content>
-        <div class="member-meta">
-          <div class="meta-row">
-            <mat-icon>person</mat-icon>
-            <span>{{ member.gender | titlecase }}</span>
+            @if (member.dateOfBirth) {
+              <div class="meta-row">
+                <mat-icon>cake</mat-icon>
+                <span>Age: {{ member.dateOfBirth | age }}</span>
+              </div>
+            }
+            @if (member.created) {
+              <div class="meta-row">
+                <mat-icon>event</mat-icon>
+                <span>Joined: {{ member.created | date: 'longDate' }}</span>
+              </div>
+            }
+            @if (member.lastActive) {
+              <div class="meta-row">
+                <mat-icon>schedule</mat-icon>
+                <span>Last Active: {{ member.lastActive | date: 'longDate' }}</span>
+              </div>
+            }
           </div>
 
-          @if (member.dateOfBirth) {
-          <div class="meta-row">
-            <mat-icon>cake</mat-icon>
-            <span>Age: {{ member.dateOfBirth | age }}</span>
-          </div>
-          } @if (member.created) {
-          <div class="meta-row">
-            <mat-icon>event</mat-icon>
-            <span>Joined: {{ member.created | date : 'longDate' }}</span>
-          </div>
-          } @if (member.lastActive) {
-          <div class="meta-row">
-            <mat-icon>schedule</mat-icon>
-            <span>Last Active: {{ member.lastActive | date : 'longDate' }}</span>
-          </div>
-          }
-        </div>
+          <!-- Vertical nav links -->
+          <mat-nav-list class="side-nav">
+            <a mat-list-item routerLink="profile" routerLinkActive="active-link">
+              <mat-icon matListItemIcon>person</mat-icon>
+              <span matListItemTitle>Profile</span>
+            </a>
 
-        <!-- Vertical nav links -->
-        <mat-nav-list class="side-nav">
-          <a mat-list-item routerLink="profile" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>person</mat-icon>
-            <span matListItemTitle>Profile</span>
-          </a>
+            <a mat-list-item routerLink="photos" routerLinkActive="active-link">
+              <mat-icon matListItemIcon>photo</mat-icon>
+              <span matListItemTitle>Photos</span>
+            </a>
 
-          <a mat-list-item routerLink="photos" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>photo</mat-icon>
-            <span matListItemTitle>Photos</span>
-          </a>
+            <a mat-list-item routerLink="messages" routerLinkActive="active-link">
+              <mat-icon matListItemIcon>message</mat-icon>
+              <span matListItemTitle>Messages</span>
+            </a>
+          </mat-nav-list>
+        </mat-card-content>
 
-          <a mat-list-item routerLink="messages" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>message</mat-icon>
-            <span matListItemTitle>Messages</span>
-          </a>
-        </mat-nav-list>
-      </mat-card-content>
-
-      <!-- Footer actions -->
-      <mat-card-actions class="card-actions">
-        <button mat-raised-button color="primary" class="like-btn" (click)="onLike(member)">
-          <mat-icon>favorite</mat-icon>
-          <span>Like</span>
-        </button>
-
-        <button mat-raised-button color="primary" class="back-btn" (click)="onBack()">
-          <mat-icon>arrow_back</mat-icon>
-          <span>Go Back</span>
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-
-  <!-- RIGHT COLUMN – details / dynamic content -->
-  <div class="right-column">
-    <mat-card class="content-card" appearance="outlined">
-      <mat-card-header>
-        <div class="card-header-row">
-          <mat-card-title> {{ member.displayName }}'s {{ title() }} </mat-card-title>
-          @if(isCurrentUser() && title() === "Profile"){
-          <button mat-raised-button color="primary" class="edit-btn" (click)="onEdit()">
-            <mat-icon>
-              {{ memberService.editMode() ? 'cancel' : 'edit' }}
-            </mat-icon>
-
-            {{ memberService.editMode() ? cancelEdit : editProfile }}
+        <!-- Footer actions -->
+        <mat-card-actions class="card-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            class="like-btn"
+            [class.liked]="likesService.hasLiked(member.id)"
+            (click)="onLike(member)"
+          >
+            <mat-icon>favorite</mat-icon>
+            <span>Like</span>
           </button>
-          } @if(isCurrentUser() && title() === "Photos"){
-          <button mat-raised-button color="primary" class="add-photo-btn" (click)="onAddPhoto()">
-            <mat-icon>add_a_photo</mat-icon>
-            <span>Add Photo</span>
-          </button>
-          }
-        </div>
-      </mat-card-header>
-      <mat-divider class="card-divider"></mat-divider>
-      <mat-card-content>
-        <router-outlet></router-outlet>
-      </mat-card-content>
-    </mat-card>
-  </div>
 
+          <button mat-raised-button color="primary" class="back-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Go Back</span>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- RIGHT COLUMN – details / dynamic content -->
+    <div class="right-column">
+      <mat-card class="content-card" appearance="outlined">
+        <mat-card-header>
+          <div class="card-header-row">
+            <mat-card-title> {{ member.displayName }}'s {{ title() }} </mat-card-title>
+            @if (isCurrentUser() && title() === 'Profile') {
+              <button mat-raised-button color="primary" class="edit-btn" (click)="onEdit()">
+                <mat-icon>
+                  {{ memberService.editMode() ? 'cancel' : 'edit' }}
+                </mat-icon>
+
+                {{ memberService.editMode() ? cancelEdit : editProfile }}
+              </button>
+            }
+            @if (isCurrentUser() && title() === 'Photos') {
+              <button
+                mat-raised-button
+                color="primary"
+                class="add-photo-btn"
+                (click)="onAddPhoto()"
+              >
+                <mat-icon>add_a_photo</mat-icon>
+                <span>Add Photo</span>
+              </button>
+            }
+          </div>
+        </mat-card-header>
+        <mat-divider class="card-divider"></mat-divider>
+        <mat-card-content>
+          <router-outlet></router-outlet>
+        </mat-card-content>
+      </mat-card>
+    </div>
   } @else {
-  <div class="loading-state">
-    <mat-icon>hourglass_empty</mat-icon>
-    <span>Loading member details...</span>
-  </div>
+    <div class="loading-state">
+      <mat-icon>hourglass_empty</mat-icon>
+      <span>Loading member details...</span>
+    </div>
   }
 </div>

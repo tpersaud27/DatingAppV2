@@ -65,7 +65,7 @@ export class Lists implements OnInit {
 
   // Methods
   public hasLiked(memberId: string): boolean {
-    return this.likesService.likedIds().includes(memberId);
+    return this.likesService.hasLiked(memberId);
   }
 
   public loadLikes(): void {
