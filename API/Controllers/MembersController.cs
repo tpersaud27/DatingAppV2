@@ -63,6 +63,7 @@ namespace API.Controllers
                     Id = p.Id,
                     Url = p.S3Key == "external" ? p.Url : $"{cloudFrontBaseUrl}/{p.S3Key}",
                     IsMain = p.IsMain,
+                    MemberId = p.MemberId,
                 })
                 .ToList();
             return Ok(photoDtos);

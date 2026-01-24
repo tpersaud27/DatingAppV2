@@ -7,30 +7,32 @@
       <div class="photo-wrapper">
         <img class="photo" [src]="photo.url" alt="photo of member" />
 
-        <!-- ⭐ Set as Main icon -->
-        <button
-          mat-icon-button
-          class="main-icon"
-          [class.main-active]="photo.isMain"
-          [disabled]="photo.isMain"
-          (click)="onSetAsMain(photo)"
-          aria-label="Set as main photo"
-        >
-          <mat-icon>
-            {{ photo.isMain ? 'star' : 'star_border' }}
-          </mat-icon>
-        </button>
+        @if (showPhotoActions()) {
+          <!-- ⭐ Set as Main icon -->
+          <button
+            mat-icon-button
+            class="main-icon"
+            [class.main-active]="photo.isMain"
+            [disabled]="photo.isMain"
+            (click)="onSetAsMain(photo)"
+            aria-label="Set as main photo"
+          >
+            <mat-icon>
+              {{ photo.isMain ? 'star' : 'star_border' }}
+            </mat-icon>
+          </button>
 
-        <!-- Delete button (hover only) -->
-        <button
-          mat-icon-button
-          color="warn"
-          class="delete-btn"
-          (click)="onDeletePhoto(photo)"
-          aria-label="Delete photo"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+          <!-- Delete button (hover only) -->
+          <button
+            mat-icon-button
+            color="warn"
+            class="delete-btn"
+            (click)="onDeletePhoto(photo)"
+            aria-label="Delete photo"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
       </div>
     }
   </div>

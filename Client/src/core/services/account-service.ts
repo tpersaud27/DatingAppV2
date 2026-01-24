@@ -47,6 +47,8 @@ export class AccountService {
             ...current,
             imageUrl: member.imageUrl,
           });
+
+          console.log('Current User ', this.currentUser());
         }),
       )
       .subscribe();

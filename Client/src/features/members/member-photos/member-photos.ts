@@ -1,13 +1,13 @@
-import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { MemberService } from '../../../core/services/member-service';
 import { Photo } from '../../../Types/Member';
-import { ActivatedRoute } from '@angular/router';
 import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
 import { PresignedUrlResponse } from '../../../Types/PhotoUpload';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PhotoService } from '../../../core/services/photo-service';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-photos',
@@ -20,8 +20,14 @@ export class MemberPhotos {
   public isUploading = signal(false);
   public uploadProgress = signal<number | null>(null);
 
+  public accountService = inject(AccountService);
   private memberService = inject(MemberService);
-  private route = inject(ActivatedRoute);
+
+  public showPhotoActions = computed(() => {
+    const currentUserId = this.accountService.currentUser()?.id;
+    const viewedId = this.memberService.member()?.id;
+    return !!currentUserId && !!viewedId && currentUserId === viewedId;
+  });
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
