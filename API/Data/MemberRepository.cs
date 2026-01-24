@@ -26,8 +26,11 @@ namespace API.Data
         public async Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId)
         {
             return await context
-                .Members.Where(member => member.Id == memberId)
-                .SelectMany(x => x.Photos)
+                .Members.Where(m => m.Id == memberId)
+                .SelectMany(m => m.Photos)
+                .OrderByDescending(p => p.IsMain) // ✅ main photo first
+                .ThenByDescending(p => p.Id) // optional stable ordering
+                .AsNoTracking()
                 .ToListAsync();
         }
 
