@@ -1,7 +1,6 @@
 using API.Data;
 using API.DTOs;
 using API.Entities;
-using API.Extensions;
 using API.Interfaces;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +28,32 @@ namespace API.Controllers
                 dto.RecipientId
             );
 
+            // Idempotency: if clientMessageId exists, return existing message
+            if (!string.IsNullOrWhiteSpace(dto.ClientMessageId))
+            {
+                var existing = await messageRepository.GetMessageByClientMessageIdAsync(
+                    conversation.Id,
+                    dto.ClientMessageId
+                );
+
+                if (existing != null)
+                {
+                    return Ok(
+                        new MessageDto
+                        {
+                            Id = existing.Id,
+                            ConversationId = existing.ConversationId,
+                            SenderId = existing.SenderId,
+                            RecipientId = existing.RecipientId,
+                            Content = existing.Content,
+                            MessageSent = existing.MessageSent,
+                            DateRead = existing.DateRead,
+                            ClientMessageId = existing.ClientMessageId,
+                        }
+                    );
+                }
+            }
+
             var message = new Message
             {
                 ConversationId = conversation.Id,
@@ -39,7 +64,29 @@ namespace API.Controllers
             };
 
             await messageRepository.AddMessageAsync(message);
-            await messageRepository.SaveAllAsync();
+
+            try
+            {
+                var saved = await messageRepository.SaveAllAsync();
+                if (!saved)
+                    return BadRequest("Failed to send message");
+            }
+            catch (DbUpdateException ex) when (IsUniqueClientMessageIdViolation(ex))
+            {
+                // Race condition: another request inserted it first
+                if (!string.IsNullOrWhiteSpace(dto.ClientMessageId))
+                {
+                    var existing = await messageRepository.GetMessageByClientMessageIdAsync(
+                        conversation.Id,
+                        dto.ClientMessageId
+                    );
+
+                    if (existing != null)
+                        return Ok(ToDto(existing));
+                }
+
+                throw; // unexpected: rethrow
+            }
 
             return Ok(
                 new MessageDto
@@ -147,6 +194,26 @@ namespace API.Controllers
             );
 
             return Ok(new ConversationDTO { Id = conversation.Id, OtherUserId = otherUserId });
+        }
+
+        private static MessageDto ToDto(Message m) =>
+            new()
+            {
+                Id = m.Id,
+                ConversationId = m.ConversationId,
+                SenderId = m.SenderId,
+                RecipientId = m.RecipientId,
+                Content = m.Content,
+                MessageSent = m.MessageSent,
+                DateRead = m.DateRead,
+                ClientMessageId = m.ClientMessageId,
+            };
+
+        // SQL Server unique constraint violation numbers: 2601, 2627
+        private static bool IsUniqueClientMessageIdViolation(DbUpdateException ex)
+        {
+            return ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx
+                && (sqlEx.Number == 2601 || sqlEx.Number == 2627);
         }
     }
 }

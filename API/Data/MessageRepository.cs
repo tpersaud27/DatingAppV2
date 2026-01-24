@@ -91,5 +91,17 @@ namespace API.Data
         {
             return string.CompareOrdinal(a, b) < 0 ? (a, b) : (b, a);
         }
+
+        public async Task<Message?> GetMessageByClientMessageIdAsync(
+            string conversationId,
+            string clientMessageId
+        )
+        {
+            return await context
+                .Messages.AsNoTracking()
+                .SingleOrDefaultAsync(m =>
+                    m.ConversationId == conversationId && m.ClientMessageId == clientMessageId
+                );
+        }
     }
 }

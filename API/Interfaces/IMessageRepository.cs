@@ -23,5 +23,11 @@ namespace API.Interfaces
 
         // Saves DB changes
         Task<bool> SaveAllAsync();
+
+        // Checks if message already exists so duplicate messages are not persisted
+        Task<Message?> GetMessageByClientMessageIdAsync(
+            string conversationId,
+            string clientMessageId
+        );
     }
 }
