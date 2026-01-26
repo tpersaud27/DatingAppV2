@@ -4,6 +4,8 @@ import { PkceService } from './pkce-service';
 import { environment } from '../../environments/environment';
 import { TokenResponse } from '../../Types/Auth';
 import { firstValueFrom } from 'rxjs';
+import { AccountService } from './account-service';
+import { LikesServices } from './likes-services';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +15,8 @@ export class AuthService {
   private environment = environment;
   private http = inject(HttpClient);
   private pkeService = inject(PkceService);
+  private accountService = inject(AccountService);
+  private likesService = inject(LikesServices);
 
   async signInWithHostedUI(): Promise<void> {
     // 1️⃣ Generate a random string that will become the PKCE "code_verifier"
@@ -63,7 +67,7 @@ export class AuthService {
     const verifier = sessionStorage.getItem(this.verifierKey);
     if (!verifier) throw new Error('Missing PKCE verifier in sessionStorage.');
 
-    // 3️⃣ Read Cognito config
+    // 3️⃣ Read Cognito config"
     const { domain, clientId, redirectUri } = environment.cognito; // note: no semicolon
 
     // 4️⃣ Build the POST body for the token exchange
@@ -106,7 +110,16 @@ export class AuthService {
     return sessionStorage.getItem('access_token');
   }
 
+  public getIdToken(): string | null {
+    return sessionStorage.getItem('id_token');
+  }
+
   public signOut(): void {
+    // Remove user from local storage
+    localStorage.removeItem('user');
+    this.accountService.currentUser.set(null);
+    this.likesService.clearLikeIds();
+
     const { domain, clientId, logoutUri } = environment.cognito;
     sessionStorage.clear();
     window.location.assign(

@@ -58,13 +58,6 @@ export class AccountService {
     return this.http.put<void>(this.baseUrl + 'account/onboarding', onboardingRequest);
   }
 
-  public logout(): void {
-    // Remove user from local storage
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
-    this.likesService.clearLikeIds();
-  }
-
   public setCurrentUser(user: User): void {
     // Store user into local storage
     localStorage.setItem('user', JSON.stringify(user));

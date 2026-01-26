@@ -61,10 +61,9 @@ export class Nav {
   }
 
   public onLogout(): void {
-    // Remove user from local storage
-    this.accountService.logout();
+    this.authService.signOut();
     // Redirect user to home screen after logging out
-    this.router.navigateByUrl('/');
+    // this.router.navigateByUrl('/');
     this.snackBarService.openLogoutSnackBar();
   }
 
