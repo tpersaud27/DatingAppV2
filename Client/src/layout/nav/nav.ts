@@ -61,7 +61,7 @@ export class Nav {
   }
 
   public onLogout(): void {
-    this.authService.signOut();
+    this.accountService.logOut();
     // Redirect user to home screen after logging out
     // this.router.navigateByUrl('/');
     this.snackBarService.openLogoutSnackBar();

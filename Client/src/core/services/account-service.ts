@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Onboarding } from '../../features/account/onboarding/onboarding';
 import { SnackBar } from './snack-bar-service';
 import { MemberService } from './member-service';
+import { MessagesSocketService } from './messages-socket-service';
+import { AuthService } from './auth-service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,8 @@ export class AccountService {
   private snackBarService = inject(SnackBar);
   private dialog = inject(MatDialog);
   private memberService = inject(MemberService);
+  private messageSocketService = inject(MessagesSocketService);
+  private authService = inject(AuthService);
 
   public currentUser = signal<User | null>(null);
   private baseUrl = environment.apiUrl;
@@ -27,6 +31,7 @@ export class AccountService {
       .post<User>(this.baseUrl + 'account/bootstrap', {})
       .pipe(
         tap((user) => {
+          // Set the currentUser
           this.setCurrentUser(user);
 
           if (!user.onboardingComplete) {
@@ -58,11 +63,21 @@ export class AccountService {
     return this.http.put<void>(this.baseUrl + 'account/onboarding', onboardingRequest);
   }
 
+  public logOut(): void {
+    // Remove user from local storage
+    localStorage.removeItem('user');
+    this.currentUser.set(null);
+    this.likesService.clearLikeIds();
+    this.messageSocketService.onDisconnect();
+    this.authService.signOutWithHostedUI();
+  }
+
   public setCurrentUser(user: User): void {
     // Store user into local storage
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUser.set(user);
     this.likesService.getLikeIds().subscribe();
+    this.messageSocketService.onConnect();
   }
 
   public showUserOnboading(): void {
