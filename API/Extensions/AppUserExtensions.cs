@@ -11,7 +11,6 @@ namespace API.Extensions
             return new UserDTO
             {
                 Id = user.Id,
-                AuthUserId = user.AuthUserId,
                 AuthProvider = user.AuthProvider,
                 Email = user.Email,
                 DisplayName = user.Member?.DisplayName,

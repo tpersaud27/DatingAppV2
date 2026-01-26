@@ -73,9 +73,9 @@ namespace API.Controllers
         public async Task<ActionResult> UpdateMember(MemberUpdateDTO memberUpdateDTO)
         {
             // 1) Get Cognito sub from JWT
-            var authUserId = User.GetAuthUserId();
+            var userId = User.GetUserId();
 
-            var member = await memberRepository.GetMemberForUpdateByAuthUserId(authUserId);
+            var member = await memberRepository.GetMemberForUpdateByAuthUserId(userId);
 
             if (member == null)
             {

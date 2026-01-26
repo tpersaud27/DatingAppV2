@@ -19,9 +19,9 @@ namespace API.Services
                 httpContextAccessor.HttpContext?.User
                 ?? throw new UnauthorizedAccessException("No user context");
 
-            var authUserId = user.GetAuthUserId();
+            var userId = user.GetUserId();
 
-            var member = await memberRepository.GetMemberByAuthUserIdAsync(authUserId);
+            var member = await memberRepository.GetMemberByAuthUserIdAsync(userId);
 
             return member ?? throw new InvalidOperationException("Member not found");
         }
@@ -32,9 +32,9 @@ namespace API.Services
                 httpContextAccessor.HttpContext?.User
                 ?? throw new UnauthorizedAccessException("No user context");
 
-            var authUserId = user.GetAuthUserId();
+            var userId = user.GetUserId();
 
-            var member = await memberRepository.GetMemberForUpdateByAuthUserId(authUserId);
+            var member = await memberRepository.GetMemberForUpdateByAuthUserId(userId);
 
             return member ?? throw new InvalidOperationException("Member not found");
         }

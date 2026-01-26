@@ -53,14 +53,14 @@ namespace API.Controllers
             // 5) Load user by AuthUserId
             var user = await context
                 .Users.Include(u => u.Member)
-                .SingleOrDefaultAsync(u => u.AuthUserId == sub);
+                .SingleOrDefaultAsync(u => u.Id == sub);
 
             if (user == null)
             {
                 // Create AppUser + empty Member
                 user = new AppUser
                 {
-                    AuthUserId = sub,
+                    Id = sub,
                     AuthProvider = provider,
                     Email = email,
                 };
@@ -98,7 +98,6 @@ namespace API.Controllers
                 new UserDTO
                 {
                     Id = user.Id,
-                    AuthUserId = user.AuthUserId,
                     AuthProvider = user.AuthProvider,
                     Email = user.Email,
                     DisplayName = user.Member?.DisplayName,
@@ -123,7 +122,7 @@ namespace API.Controllers
             // 2) Load user + member
             var user = await context
                 .Users.Include(u => u.Member)
-                .SingleOrDefaultAsync(u => u.AuthUserId == sub);
+                .SingleOrDefaultAsync(u => u.Id == sub);
 
             if (user == null)
             {

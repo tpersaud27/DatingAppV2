@@ -2,14 +2,11 @@ namespace API.Entities
 {
     public class AppUser
     {
-        // Primary key in our database
+        // Primary key in our database (this is the cognito sub)
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         // Auth provider (google, cognito, apple, etc.)
         public string? AuthProvider { get; set; }
-
-        // Cognito "sub" – this is the REAL identity
-        public required string AuthUserId { get; set; }
 
         // Email is useful but not authoritative
         public string? Email { get; set; }

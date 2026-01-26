@@ -4,11 +4,11 @@ namespace API.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {
-        public static string GetAuthUserId(this ClaimsPrincipal user)
+        public static string GetUserId(this ClaimsPrincipal user)
         {
             return user.FindFirst("sub")?.Value
                 ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                ?? throw new Exception("Auth user id (sub) claim not found");
+                ?? throw new Exception("User id (sub) claim not found");
         }
     }
 }

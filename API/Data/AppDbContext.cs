@@ -17,6 +17,14 @@ namespace API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // AppUser Id should not be auto generated, should come from Cognito sub
+            modelBuilder.Entity<AppUser>(b =>
+            {
+                b.HasKey(u => u.Id);
+                b.Property(u => u.Id).ValueGeneratedNever(); // key: important
+                b.HasIndex(u => u.Id).IsUnique();
+            });
+
             // ==========================
             // Conversation (1:1)
             // ==========================
