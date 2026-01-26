@@ -1,6 +1,5 @@
 export interface User {
   authProvider: string;
-  authUserId: string;
   displayName: string;
   email: string;
   id: string;
