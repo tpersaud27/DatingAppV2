@@ -27,8 +27,9 @@ builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var CognitoUserPoolId = builder.Configuration["Cognito:UserPoolId"];
         // Cognito User Pool authority
-        options.Authority = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HT1EStlQB";
+        options.Authority = $"https://cognito-idp.us-east-1.amazonaws.com/{CognitoUserPoolId}";
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
