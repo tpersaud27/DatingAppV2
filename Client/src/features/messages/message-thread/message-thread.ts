@@ -1,3 +1,4 @@
+import { MessagesSocketService } from './../../../core/services/messages-socket-service';
 import { FormsModule } from '@angular/forms';
 import {
   Component,
@@ -34,6 +35,7 @@ import { DatePipe } from '@angular/common';
 export class MessageThread {
   private messagesService = inject(MessagesService);
   private accountService = inject(AccountService);
+  private messagesSocketService = inject(MessagesSocketService);
 
   // INPUT AS SIGNAL
   public conversationId = input<string>();
@@ -47,41 +49,63 @@ export class MessageThread {
   private messagesContainer?: ElementRef<HTMLDivElement>;
 
   constructor() {
-    effect(() => {
+    // 1️⃣ React to conversation changes (REST)
+    effect((): void => {
       const id = this.conversationId();
       if (!id) return;
 
       console.log('conversationId changed →', id);
       this.loadMessages(id);
     });
+
+    // 2️⃣ Listen for live WebSocket messages (once)
+    // this.messagesSocketService.onMessage((message): void => {
+    //   // Defensive typing
+    //   if (!message || typeof message !== 'object') return;
+
+    //   const incoming = message as Message;
+
+    //   // Only append messages for this conversation
+    //   if (incoming.conversationId !== this.conversationId()) return;
+
+    //   // Deduplicate
+    //   this.messages.update((msgs) =>
+    //     msgs.some((m) => m.id === incoming.id) ? msgs : [...msgs, incoming]
+    //   );
+
+    //   this.scrollToBottom();
+    // });
   }
 
   public onSendMessage(input: HTMLInputElement): void {
-    if (this.isSending()) return;
-
-    const content: string = input.value.trim();
-    const recipientId: string | undefined = this.recipientId();
+    const content = input.value.trim();
+    const recipientId = this.recipientId();
 
     if (!content || !recipientId) return;
 
-    this.isSending.set(true);
-    // 🔹 Send to API and WAIT
-    this.messagesService.sendMessage({ recipientId, content }).subscribe({
-      next: (serverMessage: Message): void => {
-        // ✅ Append ONLY what the server returns
-        this.messages.update((msgs) => [...msgs, serverMessage]);
+    // 1️⃣ Persist via REST (source of truth)
+    this.messagesService
+      .sendMessage({
+        recipientId,
+        content,
+      })
+      .subscribe({
+        next: (saved) => {
+          // 2️⃣ Deliver via WebSocket
+          // this.messagesSocketService.send('sendMessage', {
+          //   recipientId,
+          //   content,
+          //   conversationId: saved.conversationId,
+          //   senderId: saved.senderId,
+          // });
 
-        input.value = '';
-        this.isSending.set(false);
-        queueMicrotask(() => {
+          // 3️⃣ Update UI immediately
+          this.messages.update((msgs) => [...msgs, saved]);
           this.scrollToBottom();
-        });
-      },
-      error: (): void => {
-        console.error('Failed to send message');
-        this.isSending.set(false);
-      },
-    });
+        },
+      });
+
+    input.value = '';
   }
 
   private loadMessages(conversationId: string): void {
