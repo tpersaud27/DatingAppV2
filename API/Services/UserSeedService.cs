@@ -38,7 +38,7 @@ namespace API.Services
             foreach (var s in seedUsers)
             {
                 // Skip if already exists
-                var exists = await context.Users.AnyAsync(u => u.AuthUserId == s.Sub);
+                var exists = await context.Users.AnyAsync(u => u.Id == s.Sub);
                 if (exists)
                     continue;
 
@@ -48,8 +48,8 @@ namespace API.Services
 
                 var appUser = new AppUser
                 {
+                    Id = s.Sub,
                     AuthProvider = "cognito",
-                    AuthUserId = s.Sub,
                     Email = s.Email,
                     CreatedAtUtc = DateTime.Now,
                 };

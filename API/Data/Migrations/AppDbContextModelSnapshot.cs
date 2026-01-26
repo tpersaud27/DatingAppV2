@@ -25,10 +25,6 @@ namespace API.Data.Migrations
                     b.Property<string>("AuthProvider")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AuthUserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
@@ -36,6 +32,9 @@ namespace API.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

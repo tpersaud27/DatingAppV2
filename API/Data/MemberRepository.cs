@@ -44,18 +44,18 @@ namespace API.Data
             context.Entry(member).State = EntityState.Modified;
         }
 
-        public async Task<Member?> GetMemberForUpdateByAuthUserId(string authUserId)
+        public async Task<Member?> GetMemberForUpdateByAuthUserId(string userId)
         {
             return await context
                 .Members.Include(x => x.User)
-                .SingleOrDefaultAsync(x => x.User.AuthUserId == authUserId);
+                .SingleOrDefaultAsync(x => x.User.Id == userId);
         }
 
-        public Task<Member?> GetMemberByAuthUserIdAsync(string authUserId)
+        public Task<Member?> GetMemberByAuthUserIdAsync(string userId)
         {
             return context
                 .Members.AsNoTracking() // No tracking just retrieving
-                .SingleOrDefaultAsync(m => m.User.AuthUserId == authUserId);
+                .SingleOrDefaultAsync(m => m.User.Id == userId);
         }
     }
 }
