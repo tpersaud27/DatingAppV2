@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
 using API.Errors;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Middleware
 {
@@ -14,35 +16,52 @@ namespace API.Middleware
         {
             try
             {
-                // We dont need any logic inside of the try block, we can just pass on the request to the next middleware here
                 await next(context);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                logger.LogError(exception, "{message}", exception.Message);
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                var traceId = context.TraceIdentifier;
 
-                var response = env.IsDevelopment()
-                    ? new ApiException(
-                        context.Response.StatusCode,
-                        exception.Message,
-                        exception.StackTrace
-                    )
-                    : new ApiException(
-                        context.Response.StatusCode,
-                        exception.Message,
-                        "Internal server error"
-                    );
+                logger.LogError(
+                    ex,
+                    "Unhandled exception | TraceId={TraceId} | {Method} {Path}",
+                    traceId,
+                    context.Request.Method,
+                    context.Request.Path
+                );
+
+                context.Response.ContentType = "application/json";
+
+                var statusCode = ex switch
+                {
+                    UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                    SecurityTokenException => StatusCodes.Status401Unauthorized,
+                    ArgumentException => StatusCodes.Status400BadRequest,
+                    InvalidOperationException => StatusCodes.Status400BadRequest,
+                    DbUpdateException => StatusCodes.Status409Conflict,
+                    _ => StatusCodes.Status500InternalServerError,
+                };
+
+                context.Response.StatusCode = statusCode;
+
+                var response = new ApiException
+                {
+                    StatusCode = statusCode,
+                    Message =
+                        env.IsDevelopment() ? ex.Message
+                        : statusCode == StatusCodes.Status500InternalServerError
+                            ? "Internal server error"
+                        : ex.Message,
+                    Details = env.IsDevelopment() ? ex.StackTrace : null,
+                    TraceId = traceId,
+                };
 
                 var options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 };
 
-                var json = JsonSerializer.Serialize(response, options);
-
-                await context.Response.WriteAsync(json);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, options));
             }
         }
     }
