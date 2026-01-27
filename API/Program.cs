@@ -1,3 +1,4 @@
+using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Amazon.S3;
 using Amazon.SecretsManager;
 using Amazon.SecurityToken;
@@ -11,42 +12,54 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+Console.WriteLine("🚀 Lambda cold start: Program.cs entered");
+
 var builder = WebApplication.CreateBuilder(args);
 
 var env = builder.Environment;
+Console.WriteLine($"🌎 Environment: {env.EnvironmentName}");
 
 // Decide where to read DB config from
 string connectionString;
 
 if (env.IsDevelopment())
 {
+    Console.WriteLine("🧪 Development environment detected");
     connectionString =
         builder.Configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("Missing DefaultConnection in configuration.");
 }
 else
 {
-    // In Lambda, set these as environment variables
+    Console.WriteLine("☁️ Lambda environment detected");
+
     var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1";
     var secretId =
         Environment.GetEnvironmentVariable("DB_SECRET_ID")
         ?? throw new InvalidOperationException("DB_SECRET_ID env var is required.");
 
+    Console.WriteLine($"🔐 Fetching DB secret '{secretId}' from Secrets Manager in {region}...");
     connectionString = await SecretsManagerDbConfig.GetConnectionStringAsync(secretId, region);
+    Console.WriteLine("✅ DB connection string loaded from Secrets Manager");
 }
 
 // Add services to the container.
+Console.WriteLine("🧩 Registering services");
 
-// This makes ASP.NET Core run behind API Gateway HTTP API (v2) when in Lambda
+// Run behind API Gateway HTTP API (v2)
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+Console.WriteLine("🔗 AWS Lambda HTTP API hosting enabled");
 
 builder.Services.AddControllers();
+Console.WriteLine("🎮 Controllers added");
 
-// Register EF with the resolved connection string
+// Register EF
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionString));
+Console.WriteLine("🗄️ DbContext configured");
 
-// Addings CORS configuration
+// CORS
 builder.Services.AddCors();
+Console.WriteLine("🌍 CORS configured");
 
 // JWT Authentication
 builder
@@ -54,14 +67,15 @@ builder
     .AddJwtBearer(options =>
     {
         var CognitoUserPoolId = builder.Configuration["Cognito:UserPoolId"];
-        // Cognito User Pool authority
+        Console.WriteLine($"🔑 Configuring JWT auth for Cognito pool {CognitoUserPoolId}");
+
         options.Authority = $"https://cognito-idp.us-east-1.amazonaws.com/{CognitoUserPoolId}";
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = false,
-            NameClaimType = "sub", // optional but nice
+            NameClaimType = "sub",
             RoleClaimType = "cognito:groups",
         };
     });
@@ -72,20 +86,24 @@ builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMemberAccessor, MemberAccessor>();
+Console.WriteLine("📦 Application services registered");
 
-// AWS S3 Services
+// AWS services
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddAWSService<IAmazonSecurityTokenService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
+Console.WriteLine("☁️ AWS SDK services registered");
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
+Console.WriteLine("🏗️ Building app");
 var app = builder.Build();
+Console.WriteLine("✅ App built");
 
-// Configure the HTTP request pipeline.
-// This is known as middleware
+// Middleware
 app.UseMiddleware<ExceptionMiddleware>();
+Console.WriteLine("🧱 Exception middleware added");
 
 app.UseCors(options =>
     options
@@ -93,12 +111,22 @@ app.UseCors(options =>
         .AllowAnyMethod()
         .WithOrigins("http://localhost:4200", "https://localhost:4200")
 );
+Console.WriteLine("🌐 CORS middleware added");
 
 app.UseAuthentication();
 app.UseAuthorization();
+Console.WriteLine("🔐 Auth middleware added");
 
 app.MapControllers();
+Console.WriteLine("🗺️ Controllers mapped");
 
-await app.MigrateAndSeedDatabaseAsync();
+// Migrations (DEV ONLY)
+if (app.Environment.IsDevelopment())
+{
+    Console.WriteLine("🧬 Running migrations (development only)");
+    await app.MigrateAndSeedDatabaseAsync();
+    Console.WriteLine("✅ Migrations complete");
+}
 
+Console.WriteLine("▶️ Starting web host");
 app.Run();
