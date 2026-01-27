@@ -5,8 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="9.2.1" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.9.1" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.17" />
     <PackageReference Include="AWSSDK.S3" Version="4.0.15.1" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.4.5" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.5.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />

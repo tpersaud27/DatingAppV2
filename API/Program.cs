@@ -1,7 +1,9 @@
 using Amazon.S3;
+using Amazon.SecretsManager;
 using Amazon.SecurityToken;
 using API.Data;
 using API.Extensions;
+using API.Infrastructure;
 using API.Interfaces;
 using API.Middleware;
 using API.Services;
@@ -11,13 +13,37 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var env = builder.Environment;
+
+// Decide where to read DB config from
+string connectionString;
+
+if (env.IsDevelopment())
+{
+    connectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Missing DefaultConnection in configuration.");
+}
+else
+{
+    // In Lambda, set these as environment variables
+    var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1";
+    var secretId =
+        Environment.GetEnvironmentVariable("DB_SECRET_ID")
+        ?? throw new InvalidOperationException("DB_SECRET_ID env var is required.");
+
+    connectionString = await SecretsManagerDbConfig.GetConnectionStringAsync(secretId, region);
+}
+
 // Add services to the container.
 
+// This makes ASP.NET Core run behind API Gateway HTTP API (v2) when in Lambda
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
 builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+
+// Register EF with the resolved connection string
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionString));
 
 // Addings CORS configuration
 builder.Services.AddCors();
