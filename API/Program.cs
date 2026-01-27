@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var env = builder.Environment;
 Console.WriteLine($"🌎 Environment: {env.EnvironmentName}");
+Console.WriteLine("Cognito UserPoolId: " + builder.Configuration["Cognito:UserPoolId"]);
 
 // Decide where to read DB config from
 string connectionString;
@@ -62,25 +63,32 @@ builder.Services.AddCors();
 Console.WriteLine("🌍 CORS configured");
 
 // JWT Authentication
+var poolId = builder.Configuration["Cognito:UserPoolId"];
+Console.WriteLine($"🔑 Configuring JWT auth for Cognito pool {poolId}");
+var aws_region = "us-east-1";
+var issuer = $"https://cognito-idp.{aws_region}.amazonaws.com/{poolId}";
+Console.WriteLine($"Issuer {issuer}");
+
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var CognitoUserPoolId = builder.Configuration["Cognito:UserPoolId"];
-        Console.WriteLine($"🔑 Configuring JWT auth for Cognito pool {CognitoUserPoolId}");
-
-        options.Authority = $"https://cognito-idp.us-east-1.amazonaws.com/{CognitoUserPoolId}";
+        options.Authority = issuer; // ok
+        options.MetadataAddress = issuer + "/.well-known/openid-configuration"; // explicit
+        options.RequireHttpsMetadata = true;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidateAudience = false,
+            ValidIssuer = issuer,
+
+            ValidateAudience = false, // or set ValidAudience to your app client id if you want
             NameClaimType = "sub",
             RoleClaimType = "cognito:groups",
         };
     });
 
-builder.Services.AddScoped<ITokenService, TokenService>();
+// builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
