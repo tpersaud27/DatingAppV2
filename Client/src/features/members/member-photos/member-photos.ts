@@ -11,6 +11,7 @@ import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-photos',
+  standalone: true,
   imports: [MatProgressBarModule, MatIconModule, MatButtonModule],
   templateUrl: './member-photos.html',
   styleUrl: './member-photos.css',
@@ -133,6 +134,10 @@ export class MemberPhotos {
   private uploadToS3(response: PresignedUrlResponse, file: File, onComplete: () => void): void {
     this.photoService.uploadToS3(response.uploadUrl, file).subscribe({
       next: (event: HttpEvent<unknown>) => {
+        // Optional: show per-file upload progress
+        this.updateProgress(event);
+
+        // Upload finished successfully
         if (event.type === HttpEventType.Response) {
           this.onUploadComplete(response.fileUrl, onComplete);
         }
@@ -161,7 +166,10 @@ export class MemberPhotos {
   }
 
   private onUploadComplete(fileUrl: string, onComplete: () => void): void {
-    this.photoService.savePhoto(fileUrl).subscribe({
+    // ✅ New workflow:
+    // Only after S3 PUT succeeds do we "confirm" and create the DB record.
+    // This avoids DB rows for uploads that never finished.
+    this.photoService.confirmPhoto(fileUrl).subscribe({
       next: () => {
         const memberId = this.memberService.member()?.id;
         if (memberId) {
@@ -169,9 +177,10 @@ export class MemberPhotos {
             next: (photos) => this.photos.set(photos),
           });
         }
+        onComplete();
       },
       error: (error) => {
-        console.error('Failed to save photo to DB:', error);
+        console.error('Failed to confirm photo to DB:', error);
         onComplete();
       },
     });
