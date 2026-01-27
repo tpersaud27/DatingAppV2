@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using API.Data;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +47,7 @@ namespace API.Services
                     Id = s.Sub,
                     AuthProvider = "cognito",
                     Email = s.Email,
-                    CreatedAtUtc = DateTime.Now,
+                    CreatedAtUtc = DateTime.UtcNow,
                 };
 
                 var member = new Member

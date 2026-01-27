@@ -74,7 +74,7 @@ namespace API.Data
                 .Entity<Message>()
                 .HasIndex(m => new { m.SenderId, m.ClientMessageId })
                 .IsUnique()
-                .HasFilter("[ClientMessageId] IS NOT NULL");
+                .HasFilter(@"""ClientMessageId"" IS NOT NULL");
 
             // ==========================
             // Member Likes
