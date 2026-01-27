@@ -1,6 +1,4 @@
-using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Amazon.S3;
-using Amazon.SecretsManager;
 using Amazon.SecurityToken;
 using API.Data;
 using API.Extensions;
@@ -8,6 +6,7 @@ using API.Infrastructure;
 using API.Interfaces;
 using API.Middleware;
 using API.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,11 +47,25 @@ else
 Console.WriteLine("🧩 Registering services");
 
 // Run behind API Gateway HTTP API (v2)
+// NOTE: In production we use API Gateway JWT Authorizer (Cognito) to validate tokens.
+// The Authorizer injects claims into request headers via parameter mapping, so Lambda does NOT need internet/NAT.
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 Console.WriteLine("🔗 AWS Lambda HTTP API hosting enabled");
 
 builder.Services.AddControllers();
 Console.WriteLine("🎮 Controllers added");
+
+try
+{
+    var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+    Console.WriteLine(
+        $"🧪 DB Host={csb.Host}, Database={csb.Database}, Username={csb.Username}, Port={csb.Port}"
+    );
+}
+catch
+{
+    Console.WriteLine("⚠️ Could not parse connection string for logging");
+}
 
 // Register EF
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionString));
@@ -62,31 +75,78 @@ Console.WriteLine("🗄️ DbContext configured");
 builder.Services.AddCors();
 Console.WriteLine("🌍 CORS configured");
 
-// JWT Authentication
+// ---------------------------
+// Authentication & Authorization
+// ---------------------------
+// DEV: Use JwtBearer locally (Angular on localhost can hit API directly, and the machine has internet access)
+// PROD (Lambda/VPC): Use trusted headers populated by API Gateway JWT Authorizer parameter mapping
+//   Header x-auth-sub      = $context.authorizer.jwt.claims.sub
+//   Header x-auth-email    = $context.authorizer.jwt.claims.email
+//   Header x-auth-username = $context.authorizer.jwt.claims['cognito:username']
+//
+// IMPORTANT: Ensure Lambda is only invokable via API Gateway (no Function URL / no public invoke),
+// otherwise someone could spoof these headers.
 var poolId = builder.Configuration["Cognito:UserPoolId"];
-Console.WriteLine($"🔑 Configuring JWT auth for Cognito pool {poolId}");
 var aws_region = "us-east-1";
 var issuer = $"https://cognito-idp.{aws_region}.amazonaws.com/{poolId}";
 Console.WriteLine($"Issuer {issuer}");
 
-builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.Authority = issuer; // ok
-        options.MetadataAddress = issuer + "/.well-known/openid-configuration"; // explicit
-        options.RequireHttpsMetadata = true;
+if (env.IsDevelopment())
+{
+    Console.WriteLine($"🔑 Configuring JWT Bearer auth (development) for Cognito pool {poolId}");
 
-        options.TokenValidationParameters = new TokenValidationParameters
+    builder
+        .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = issuer,
+            options.Authority = issuer;
+            options.MetadataAddress = issuer + "/.well-known/openid-configuration";
+            options.RequireHttpsMetadata = true;
 
-            ValidateAudience = false, // or set ValidAudience to your app client id if you want
-            NameClaimType = "sub",
-            RoleClaimType = "cognito:groups",
-        };
-    });
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+
+                // Keep false if you don't want audience enforcement.
+                // If you DO want to enforce it, set:
+                // ValidateAudience = true,
+                // ValidAudience = builder.Configuration["Cognito:AppClientId"]
+                ValidateAudience = false,
+
+                NameClaimType = "sub",
+                RoleClaimType = "cognito:groups",
+            };
+        });
+
+    builder.Services.AddAuthorization();
+}
+else
+{
+    Console.WriteLine("🔐 Configuring API Gateway trusted-header auth (production)");
+
+    builder
+        .Services.AddAuthentication("ApiGateway")
+        .AddScheme<AuthenticationSchemeOptions, APIGatewayClaimsAuthHandler>(
+            "ApiGateway",
+            _ => { }
+        );
+
+    builder.Services.AddAuthorization();
+}
+
+// Cors Policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "DevCors",
+        policy =>
+            policy
+                .WithOrigins("http://localhost:4200", "https://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+    );
+});
 
 // builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
@@ -113,12 +173,7 @@ Console.WriteLine("✅ App built");
 app.UseMiddleware<ExceptionMiddleware>();
 Console.WriteLine("🧱 Exception middleware added");
 
-app.UseCors(options =>
-    options
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .WithOrigins("http://localhost:4200", "https://localhost:4200")
-);
+app.UseCors("DevCors");
 Console.WriteLine("🌐 CORS middleware added");
 
 app.UseAuthentication();

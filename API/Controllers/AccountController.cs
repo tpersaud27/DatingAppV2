@@ -17,135 +17,134 @@ namespace API.Controllers
     ) : BaseApiController
     {
         [Authorize]
-        [HttpPost("bootstrap")] // api/acount/bootstrap
+        [HttpPost("bootstrap")] // api/account/bootstrap
         public async Task<ActionResult<UserDTO>> Bootstrap()
         {
-            try
+            Console.WriteLine("🧩 Bootstrap endpoint called");
+
+            // -------------------------
+            // Auth state
+            // -------------------------
+            var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+            Console.WriteLine($"Authenticated={isAuthenticated}");
+
+            if (!isAuthenticated)
             {
-                Console.WriteLine("🧩 Bootstrap endpoint called");
-                Console.WriteLine($"Authenticated={User?.Identity?.IsAuthenticated}");
+                Console.WriteLine("❌ User is not authenticated");
+                return Unauthorized("User not authenticated");
+            }
 
-                var subClaim =
-                    User?.FindFirst("sub")?.Value
-                    ?? User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // -------------------------
+            // Cognito sub (user id)
+            // -------------------------
+            var sub =
+                User.FindFirst("sub")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                Console.WriteLine($"sub={subClaim ?? "(null)"}");
+            Console.WriteLine($"sub={sub}");
 
+            if (string.IsNullOrWhiteSpace(sub))
+            {
+                Console.WriteLine("❌ Missing sub claim");
+                return Unauthorized("Missing sub claim");
+            }
+
+            // -------------------------
+            // Headers
+            // -------------------------
+            var hasAuthHeader = Request.Headers.ContainsKey("Authorization");
+            Console.WriteLine($"HasAuthorizationHeader={hasAuthHeader}");
+
+            if (hasAuthHeader)
+            {
                 var authHeader = Request.Headers.Authorization.ToString();
-                Console.WriteLine(
-                    $"HasAuthorizationHeader={!string.IsNullOrWhiteSpace(authHeader)}"
-                );
-                Console.WriteLine(
-                    $"AuthorizationHeaderPrefix={(authHeader?.Length > 15 ? authHeader[..15] : authHeader)}"
-                );
-
-                // 1) Cognito user id (sub)
-                var sub = subClaim;
-                if (string.IsNullOrWhiteSpace(sub))
-                    return Unauthorized("Missing sub claim");
-
-                // 2) Access token
-                var accessToken =
-                    !string.IsNullOrWhiteSpace(authHeader)
-                    && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
-                        ? authHeader["Bearer ".Length..].Trim()
-                        : null;
-
-                // 3) Best-effort email from JWT
-                var email =
-                    User != null
-                        ? (
-                            User.FindFirst("email")?.Value
-                            ?? User.FindFirst(ClaimTypes.Email)?.Value
-                        )
-                        : null;
-                Console.WriteLine($"email(from token)={email ?? "(null)"}");
-
-                // 4) Determine provider using Cognito userInfo
-                var provider = "cognito";
-                if (!string.IsNullOrWhiteSpace(accessToken))
-                {
-                    Console.WriteLine("Calling TryGetUserInfo...");
-                    var (userInfoEmail, userInfoProvider) = await TryGetUserInfo(accessToken);
-                    Console.WriteLine(
-                        $"userInfoEmail={userInfoEmail ?? "(null)"} userInfoProvider={userInfoProvider ?? "(null)"}"
-                    );
-
-                    email ??= userInfoEmail;
-                    if (!string.IsNullOrWhiteSpace(userInfoProvider))
-                        provider = userInfoProvider;
-                }
-                else
-                {
-                    Console.WriteLine(
-                        "No access token found in Authorization header (not Bearer?)"
-                    );
-                }
-
-                // 5) Load user by AuthUserId
-                Console.WriteLine("Querying user from DB...");
-                var user = await context
-                    .Users.Include(u => u.Member)
-                    .SingleOrDefaultAsync(u => u.Id == sub);
-
-                if (user == null)
-                {
-                    Console.WriteLine("User not found; creating user + member...");
-
-                    user = new AppUser
-                    {
-                        Id = sub,
-                        AuthProvider = provider,
-                        Email = email,
-                    };
-
-                    user.Member = new Member
-                    {
-                        DisplayName = email?.Split('@')[0] ?? "New User",
-                        OnboardingComplete = false,
-                        LastActive = DateTime.UtcNow,
-                    };
-
-                    context.Users.Add(user);
-
-                    Console.WriteLine("Saving changes...");
-                    await context.SaveChangesAsync();
-                    Console.WriteLine("User created.");
-                }
-                else
-                {
-                    Console.WriteLine("User found; updating...");
-
-                    user.AuthProvider = provider;
-
-                    if (!string.IsNullOrWhiteSpace(email) && user.Email != email)
-                        user.Email = email;
-
-                    if (user.Member != null)
-                        user.Member.LastActive = DateTime.UtcNow;
-
-                    Console.WriteLine("Saving changes...");
-                    await context.SaveChangesAsync();
-                    Console.WriteLine("User updated.");
-                }
-
-                return Ok(
-                    new UserDTO
-                    {
-                        Id = user.Id,
-                        AuthProvider = user.AuthProvider,
-                        Email = user.Email,
-                        DisplayName = user.Member?.DisplayName,
-                        OnboardingComplete = user.Member?.OnboardingComplete ?? false,
-                    }
-                );
+                var prefix = authHeader.Length > 15 ? authHeader[..15] : authHeader;
+                Console.WriteLine($"AuthorizationHeaderPrefix={prefix}");
             }
-            catch (Exception ex)
+
+            // -------------------------
+            // Email (claim → header fallback)
+            // -------------------------
+            var emailFromClaim =
+                User.FindFirst("email")?.Value ?? User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var emailFromHeader = Request.Headers["x-auth-email"].ToString();
+
+            Console.WriteLine($"email(from claim)={emailFromClaim ?? "(null)"}");
+            Console.WriteLine($"email(from header)={emailFromHeader ?? "(null)"}");
+
+            var email = emailFromClaim ?? emailFromHeader;
+
+            // -------------------------
+            // Provider (API Gateway already validated Cognito)
+            // -------------------------
+            var provider = "cognito";
+
+            // -------------------------
+            // Load user
+            // -------------------------
+            var user = await context
+                .Users.Include(u => u.Member)
+                .SingleOrDefaultAsync(u => u.Id == sub);
+
+            if (user == null)
             {
-                Console.WriteLine("🔥 Bootstrap failed:");
-                Console.WriteLine(ex.ToString()); // includes stack trace
-                throw; // lets your ExceptionMiddleware still format the 500 response
+                Console.WriteLine("🆕 Creating new user");
+
+                user = new AppUser
+                {
+                    Id = sub,
+                    AuthProvider = provider,
+                    Email = string.IsNullOrWhiteSpace(email) ? null : email,
+                };
+
+                user.Member = new Member
+                {
+                    DisplayName = !string.IsNullOrWhiteSpace(email)
+                        ? email.Split('@')[0]
+                        : "New User",
+                    OnboardingComplete = false,
+                    LastActive = DateTime.UtcNow,
+                };
+
+                context.Users.Add(user);
+                await context.SaveChangesAsync();
+
+                Console.WriteLine("✅ New user persisted");
             }
+            else
+            {
+                Console.WriteLine("🔁 Updating existing user");
+
+                user.AuthProvider = provider;
+
+                if (!string.IsNullOrWhiteSpace(email) && user.Email != email)
+                {
+                    Console.WriteLine($"📧 Updating email {user.Email} → {email}");
+                    user.Email = email;
+                }
+
+                if (user.Member != null)
+                {
+                    user.Member.LastActive = DateTime.UtcNow;
+                }
+
+                await context.SaveChangesAsync();
+
+                Console.WriteLine("✅ Existing user updated");
+            }
+
+            Console.WriteLine($"🎉 Bootstrap complete for user {sub}");
+
+            return Ok(
+                new UserDTO
+                {
+                    Id = user.Id,
+                    AuthProvider = user.AuthProvider,
+                    Email = user.Email,
+                    DisplayName = user.Member?.DisplayName,
+                    OnboardingComplete = user.Member?.OnboardingComplete ?? false,
+                }
+            );
         }
 
         [Authorize]
