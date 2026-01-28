@@ -50,8 +50,8 @@ jobs:
           cat << 'EOF' > public/assets/config.json
           {
             "production": true,
-            "apiUrl": "${{ secrets.API_URL }}",
-            "wsUrl": "${{ secrets.WS_URL }}",
+            "apiUrl": "${{ secrets.PROD_API_URL }}",
+            "wsUrl": "${{ secrets.PROD_WS_URL }}",
             "cognito": {
               "domain": "${{ secrets.COGNITO_DOMAIN }}",
               "clientId": "${{ secrets.COGNITO_CLIENT_ID }}",
