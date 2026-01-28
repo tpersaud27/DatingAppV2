@@ -28,7 +28,7 @@ export class InitService {
 
     if (env.production === true) {
       this.config = cfg;
-      console.log('✅ Runtime production config loaded');
+      console.log('✅ Runtime production config loaded', this.config);
     } else {
       this.config = environment;
 
