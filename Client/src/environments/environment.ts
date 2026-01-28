@@ -1,6 +1,6 @@
-export const environment = {
+export const environment: AppConfig = {
   production: true,
-  apiUrl: 'api/',
+  apiUrl: '',
   wsUrl: '',
   cognito: {
     domain: '',

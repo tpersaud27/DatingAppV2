@@ -23,6 +23,9 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(async () => {
       const initService = inject(InitService);
 
+      // Load runtime config FIRST
+      await initService.loadConfig();
+
       // Adding a fake delay to show the loading when user refreshes page
       return new Promise<void>((resolve) => {
         setTimeout(async () => {
