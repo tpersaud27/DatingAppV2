@@ -16,30 +16,6 @@ export class InitService {
   private authService = inject(AuthService);
   private likesService = inject(LikesServices);
   private messagesSocketService = inject(MessagesSocketService);
-  private http = inject(HttpClient);
-
-  // Loaded once at app startup
-  public config!: AppConfig;
-
-  public async loadConfig(): Promise<void> {
-    // This must run before any services try to read apiUrl/wsUrl/cognito config
-    const cfg = await firstValueFrom(this.http.get<AppConfig>('/assets/config.json'));
-    const env = environment;
-
-    if (env.production === true) {
-      this.config = cfg;
-      console.log('✅ Runtime production config loaded', this.config);
-    } else {
-      this.config = environment;
-
-      console.log('✅ Runtime dev config loaded:', {
-        production: this.config.production,
-        apiUrl: this.config.apiUrl,
-        wsUrl: this.config.wsUrl,
-        cognito: this.config.cognito,
-      });
-    }
-  }
 
   public init(): Observable<null> {
     const userString = localStorage.getItem('user');

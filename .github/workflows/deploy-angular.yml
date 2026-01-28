@@ -42,24 +42,23 @@ jobs:
         run: npm ci
 
       # -------------------------------------------------
-      # Runtime config (public/assets/config.json)
+      # Production env secrets
       # -------------------------------------------------
-      - name: Generate runtime config
+      - name: Create Angular production environment from secrets
         run: |
-          mkdir -p public/assets
-          cat << 'EOF' > public/assets/config.json
-          {
-            "production": true,
-            "apiUrl": "${{ secrets.PROD_API_URL }}",
-            "wsUrl": "${{ secrets.PROD_WS_URL }}",
-            "cognito": {
-              "domain": "${{ secrets.COGNITO_DOMAIN }}",
-              "clientId": "${{ secrets.COGNITO_CLIENT_ID }}",
-              "redirectUri": "${{ secrets.COGNITO_REDIRECT_URI }}",
-              "logoutUri": "${{ secrets.COGNITO_LOGOUT_URI }}",
-              "scopes": ["openid", "email"]
-            }
-          }
+          cat > src/environments/environment.ts <<'EOF'
+          export const environment = {
+            production: true,
+            apiUrl: '${{ secrets.PROD_API_URL }}',
+            wsUrl: '${{ secrets.PROD_WS_URL }}',
+            cognito: {
+              domain: '${{ secrets.COGNITO_DOMAIN }}',
+              clientId: '${{ secrets.COGNITO_CLIENT_ID }}',
+              redirectUri: '${{ secrets.COGNITO_REDIRECT_URI }}',
+              logoutUri: '${{ secrets.COGNITO_LOGOUT_URI }}',
+              scopes: ['openid', 'email'],
+            },
+          };
           EOF
 
       # -------------------------------------------------
