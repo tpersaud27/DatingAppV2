@@ -1,0 +1,8 @@
+@if (loading.active()) {
+  <div class="overlay">
+    <div class="card">
+      <div class="spinner"></div>
+      <div class="msg">{{ loading.message() ?? 'Loading...' }}</div>
+    </div>
+  </div>
+}
