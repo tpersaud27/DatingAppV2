@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { OnboardingRequest, User } from '../../Types/User';
-import { Observable, switchMap, tap } from 'rxjs';
+import { catchError, finalize, mapTo, Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesServices } from './likes-services';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { SnackBar } from './snack-bar-service';
 import { MemberService } from './member-service';
 import { MessagesSocketService } from './messages-socket-service';
 import { AuthService } from './auth-service';
+import { LoadingService } from './loading-service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,41 +23,34 @@ export class AccountService {
   private memberService = inject(MemberService);
   private messageSocketService = inject(MessagesSocketService);
   private authService = inject(AuthService);
+  private loadingService = inject(LoadingService);
 
   public currentUser = signal<User | null>(null);
   private baseUrl = environment.apiUrl;
 
-  public bootstrapUser(): void {
-    this.http
-      .post<User>(this.baseUrl + 'account/bootstrap', {})
-      .pipe(
-        tap((user) => {
-          // Set the currentUser
-          this.setCurrentUser(user);
+  public bootstrapUser$(): Observable<void> {
+    return this.http.post<User>(this.baseUrl + 'account/bootstrap', {}).pipe(
+      tap((user) => {
+        this.setCurrentUser(user);
 
-          if (!user.onboardingComplete) {
-            this.showUserOnboading();
-          }
-        }),
-        switchMap((user) => {
-          // If onboarding isn't complete, member might not have imageUrl yet
-          // You can still fetch it, but often unnecessary.
-          return this.memberService.getMember(user.id);
-        }),
-        tap((member) => {
-          // Update user state immutably
-          const current = this.currentUser();
-          if (!current) return;
+        if (!user.onboardingComplete) {
+          this.showUserOnboading();
+        }
+      }),
+      switchMap((user) => this.memberService.getMember(user.id)),
+      tap((member) => {
+        const current = this.currentUser();
+        if (!current) return;
 
-          this.setCurrentUser({
-            ...current,
-            imageUrl: member.imageUrl,
-          });
-
-          console.log('Current User ', this.currentUser());
-        }),
-      )
-      .subscribe();
+        this.setCurrentUser({
+          ...current,
+          imageUrl: member.imageUrl,
+        });
+      }),
+      mapTo(void 0),
+      // don't break the callback page if bootstrap fails
+      catchError(() => of(void 0)),
+    );
   }
 
   public completeOnboarding(onboardingRequest: OnboardingRequest): Observable<void> {

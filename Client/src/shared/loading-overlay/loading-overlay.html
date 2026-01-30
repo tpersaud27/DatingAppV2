@@ -1,8 +1,6 @@
 @if (loading.active()) {
-  <div class="overlay">
-    <div class="card">
-      <div class="spinner"></div>
-      <div class="msg">{{ loading.message() ?? 'Loading...' }}</div>
-    </div>
+  <div id="initial-splash">
+    <span class="material-icons init-icon">group</span>
+    <h1 class="init-title">{{ loading.message() ?? 'Loading...' }}</h1>
   </div>
 }
