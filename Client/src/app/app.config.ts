@@ -10,7 +10,7 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { InitService } from '../core/services/init-service';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { errorInterceptor } from '../core/interceptors/error-interceptor';
 import { authInterceptor } from '../core/interceptors/auth-interceptor';
 
@@ -20,24 +20,12 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes, withViewTransitions()),
     provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
+    // App startup (refresh / first load)
+    // InitService handles showing/hiding the global loading indicator internally
     provideAppInitializer(async () => {
       const initService = inject(InitService);
-
-      // Adding a fake delay to show the loading when user refreshes page
-      return new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          try {
-            return lastValueFrom(initService.init());
-          } finally {
-            // Once the promise is returned from our try block, we can do something here
-            const splash = document.getElementById('initial-splash');
-            if (splash) {
-              splash.remove();
-            }
-            resolve();
-          }
-        }, 500);
-      });
+      // Wait until InitService completes (it returns an Observable)
+      await firstValueFrom(initService.init());
     }),
   ],
 };

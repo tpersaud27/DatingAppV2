@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { OnboardingRequest, User } from '../../Types/User';
-import { catchError, finalize, mapTo, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, mapTo, Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesServices } from './likes-services';
 import { MatDialog } from '@angular/material/dialog';
