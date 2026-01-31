@@ -14,6 +14,7 @@ import { MemberMessages } from '../features/members/member-messages/member-messa
 import { memberResolver } from '../features/members/member-resolver';
 import { preventUnsavedChangesGuard } from '../core/guards/prevent-unsaved-changes-guard';
 import { AuthCallback } from '../features/account/auth-callback/auth-callback';
+import { membersResolver } from '../features/members/members-resolver';
 
 export const routes: Routes = [
   {
@@ -29,6 +30,8 @@ export const routes: Routes = [
       {
         path: 'members',
         component: MembersList,
+        runGuardsAndResolvers: 'always',
+        resolve: { members: membersResolver },
       },
       {
         path: 'members/:id',

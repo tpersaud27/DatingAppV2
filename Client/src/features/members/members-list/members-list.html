@@ -1,6 +1,6 @@
 <div class="page-container">
   <div class="cards-grid">
-    @for (member of members$ | async; track member.id) {
+    @for (member of members(); track member.id) {
       @if (member.id !== accountService.currentUser()?.id) {
         <mat-card routerLink="/members/{{ member.id }}" class="user-card" appearance="outlined">
           <!-- Like icon -->
