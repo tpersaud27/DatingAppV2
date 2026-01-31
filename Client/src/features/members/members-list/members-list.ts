@@ -31,11 +31,8 @@ export class MembersList {
   public accountService = inject(AccountService);
   public likesService = inject(LikesServices);
 
-  // Create a Set so lookups are O(1)
-  public likedIdSet = computed(() => new Set(this.likesService.likedIds()));
-
   public hasLiked(memberId: string): boolean {
-    return this.likedIdSet().has(memberId);
+    return this.likesService.likedIdSet().has(memberId);
   }
 
   public members$: Observable<Member[]>;

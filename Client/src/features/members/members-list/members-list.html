@@ -1,25 +1,28 @@
 <div class="page-container">
   <div class="cards-grid">
-    @for (member of members$ | async; track member.id) { @if(member.id !==
-    accountService.currentUser()?.id){
-    <mat-card routerLink="/members/{{ member.id }}" class="user-card" appearance="outlined">
-      <!-- Like icon -->
-      <button
-        mat-icon-button
-        class="like-btn"
-        [class.liked]="hasLiked(member.id)"
-        (click)="onLike($event, member.id)"
-      >
-        <mat-icon>favorite</mat-icon>
-      </button>
-      <mat-card-header>
-        <img mat-card-avatar [src]="member.imageUrl || '/user.png'" alt="User avatar" />
-        <mat-card-title>{{ member.displayName }}, {{ member.dateOfBirth | age }}</mat-card-title>
-        <mat-card-subtitle>{{ member.city }}, {{ member.country }}</mat-card-subtitle>
-      </mat-card-header>
+    @for (member of members$ | async; track member.id) {
+      @if (member.id !== accountService.currentUser()?.id) {
+        <mat-card routerLink="/members/{{ member.id }}" class="user-card" appearance="outlined">
+          <!-- Like icon -->
+          <button
+            mat-icon-button
+            class="like-btn"
+            [class.liked]="hasLiked(member.id)"
+            (click)="onLike($event, member.id)"
+          >
+            <mat-icon>favorite</mat-icon>
+          </button>
+          <mat-card-header>
+            <img mat-card-avatar [src]="member.imageUrl || '/user.png'" alt="User avatar" />
+            <mat-card-title
+              >{{ member.displayName }}, {{ member.dateOfBirth | age }}</mat-card-title
+            >
+            <mat-card-subtitle>{{ member.city }}, {{ member.country }}</mat-card-subtitle>
+          </mat-card-header>
 
-      <img mat-card-image [src]="member.imageUrl || '/user.png'" alt="user avatar" />
-    </mat-card>
-    } }
+          <img mat-card-image [src]="member.imageUrl || '/user.png'" alt="user avatar" />
+        </mat-card>
+      }
+    }
   </div>
 </div>
