@@ -1,150 +1,192 @@
-# DatingAppV2
+# DatingAppV2: Technical Documentation
+
+A full-stack dating application featuring real-time communication, cloud-native photo storage, and a serverless backend architecture.
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Endpoints](#endpoints)
-3. [Database Schemas](#database-schemas)
-4. [Feature Architecture](#feature-architecture)
-5. [Coding Patterns](#coding-patterns)
-
-# Overview
-
-Dating App V2
-
-# Endpoints
-
-## Table of Contents
-
-1. [Likes Endpoint](#likes-endpoint)
-
-## Likes Endpoint
-
-Base Route: /api/likes
-
-This controller manages member-to-member likes, supporting toggling likes, retrieving liked member IDs, and listing likes based on relationship direction.
-
----
-
-### POST `/api/likes/{targetMemberId}`
-
-Toggle a like between the current authenticated member and a target member.
-
-### Behavior
-
-- If the current member has not liked the target → a like is created
-- If the like already exists → the like is removed
-- Members cannot like themselves
-
-### Route Parameters
-
-| Name           | Type   | Description                        |
-|----------------|--------|------------------------------------|
-| targetMemberId | string | ID of the member to like or unlike |
-
-### Responses
-
-| Status         | Description                               |
-|----------------|-------------------------------------------|
-| 200 OK         | Like added or removed successfully        |
-| 400 Bad Request | Attempt to like self or persistence failure |
+* [System Architecture](#system-architecture)
+  * [Frontend](#frontend)
+  * [Backend (API & Real-time)](#backend-api--real-time)
+  * [Data & Storage](#data--storage)
+* [Authentication and Authorization](#authentication-and-authorization)
+  * [Architectural Overview](#architectural-overview)
+  * [The Authentication Flow (PKCE)](#the-authentication-flow-pkce)
+  * [Initializing the Challenge](#initializing-the-challenge)
+  * [The Handshake](#the-handshake)
+  * [Identity Verification](#identity-verification)
+  * [Token Exchange and Persistence](#token-exchange-and-persistence)
+  * [Securing the Gateway & WebSockets](#securing-the-gateway--websockets)
+* [API Endpoints](#api-endpoints)
+  * [Authentication & Identity](#authentication--identity)
+  * [User Management](#user-management)
+  * [Photo Service](#photo-service)
+  * [Interactions & Messaging](#interactions--messaging)
+* [Database Structure](#database-structure)
+  * [Relational Model for Like Feature](#relational-model-for-like-feature)
+* [Photo Upload & Delivery Architecture](#photo-upload--delivery-architecture)
+  * [Core Infrastructure](#core-infrastructure)
+  * ["Direct-to-S3" Upload Flow](#direct-to-s3-upload-flow)
+  * [Image Delivery & Caching](#image-delivery--caching)
+  * [Security Posture](#security-posture)
+* [Real-Time Messaging Architecture](#real-time-messaging-architecture)
+  * [Node.js + AWS API Gateway + DynamoDB](#nodejs--aws-api-gateway--dynamodb)
+  * [Real-Time Infrastructure](#real-time-infrastructure)
+  * [The Connection Lifecycle](#the-connection-lifecycle)
+  * [Connection Schema (DynamoDB)](#connection-schema-dynamodb)
+  * [Security & Validation](#security--validation)
+  * [Key Advantages](#key-advantages-of-this-nodejslambda-approach)
 
 ---
 
-### GET `/api/likes/list`
+## System Architecture
 
-Returns a list of member IDs that the current member has liked.
+The application is built using a modern, decoupled architecture designed for scalability and high availability on AWS.
 
-### Response Example
+### Frontend
 
-```json
-[
-  "memberId1",
-  "memberId2",
-  "memberId3"
-]
-```
+* **Framework:** Angular
+* **Hosting:** Hosted on **Amazon S3** and distributed via **Amazon CloudFront** for low-latency global delivery and SSL termination.
+* **State Management:** Utilizes Angular Signals for reactive and efficient UI updates.
 
-### GET `/api/likes?predicate={predicate}`
+### Backend (API & Real-time)
 
-Returns a list of `Member` objects based on the type of like relationship relative to the **current authenticated user**.
+* **Primary API:** Developed in **.NET Core** and deployed as an **AWS Lambda** function. This serverless approach ensures the backend scales automatically with traffic.
+* **Real-time Layer:** A **Node.js WebSocket** server handles live connections, allowing users to receive instant notifications and messages without refreshing the app.
 
----
+### Data & Storage
 
-### Query Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|------------|
-| predicate | string | Yes | Determines which like relationship to return |
+* **Relational Database:** **Amazon RDS (PostgreSQL/SQL Server)** stores user profiles, matches, and application data.
+* **Photo Service:** User-uploaded images are stored in **Amazon S3**. These assets are served through **CloudFront** to ensure fast loading times for profile browsing.
 
 ---
 
-### Predicate Values & Behavior
+## Authentication and Authorization
 
-#### `liked`
+This document outlines the end-to-end security architecture of the application, detailing how **AWS Cognito**, **Angular**, **.NET Core**, and **API Gateway** collaborate to secure RESTful communication and real-time WebSocket streams.
 
-Returns members that the **current user has liked**.
+### Architectural Overview
 
-**Logic**
+The system utilizes a **Decentralized Identity Model** where the application never handles raw credentials.
 
-- `SourceMemberId == currentUserId`
-- Returns `TargetMember`
+* **Identity Provider (IdP):** AWS Cognito serves as the single source of truth.
+* **Authentication Protocol:** OAuth 2.0 / OpenID Connect (OIDC) with **Authorization Code Flow + PKCE**.
+* **Tokens:** * **ID Token:** Used for user profile data and initial WebSocket authentication.
+* **Access Token:** Used for authorizing .NET REST API requests.
+* **Identity Mapping:** The `sub` (subject) claim in the JWT is used as the unique identifier across the RDS database and S3 storage.
+
+### The Authentication Flow (PKCE)
+
+To secure the mobile and single-page application (SPA) environments, we implement **Proof Key for Code Exchange (PKCE)** to prevent authorization code injection attacks.
+
+### Initializing the Challenge
+
+Before redirecting the user, the Angular application locally generates:
+
+* **Code Verifier:** A high-entropy cryptographic random string (the "Secret").
+* **Code Challenge:** A Base64-URL encoded SHA256 hash of the Verifier (the "Public" version).
+
+### The Handshake
+
+The browser is redirected to the **Cognito Hosted UI** via the following payload:
+
+| **Parameter** | **Purpose** |
+| --- | --- |
+| `client_id` | Identifies the Angular App in Cognito. |
+| `redirect_uri` | Where Cognito sends the user after login. |
+| `response_type` | Set to `code`. |
+| `code_challenge` | The hashed verifier. |
+| `state` | A random string to prevent Cross-Site Request Forgery (CSRF). |
+| `scope` | Usually `openid email profile`. |
+
+### Identity Verification
+
+The user authenticates through the Cognito Hosted UI (via standard credentials or **Google Federation**). Upon success, Cognito redirects the user back to the Angular `redirect_uri` with:
+
+* **Authorization Code:** A short-lived code that is useless without the Verifier.
+* **State:** To be compared against the original state in Angular.
+
+### Token Exchange and Persistence
+
+* **The Swap:** Angular sends the `authorization_code` + the original `code_verifier` back to the Cognito Token Endpoint.
+* **Validation:** Cognito hashes the Verifier; if it matches the original Challenge, it issues the tokens.
+* **Storage:** * The **ID Token** and **Access Token** are stored in the application's memory or securely in a cookie.
+* Angular's Interceptors are configured to attach the **Access Token** to the `Authorization: Bearer <token>` header for all `.NET API` requests.
+
+### Securing the Gateway & WebSockets
+
+* **REST API (.NET):** Uses `JwtBearer` middleware to validate issuer, audience, and expiration.
+* **Real-time WebSockets:** Authentication occurs at the **$connect** route. An **AWS Lambda Authorizer** validates the JWT passed in the query string and maps the `connectionId` to the user's `sub`.
+
+### REST API (.NET)
+
+The .NET backend uses the `Microsoft.AspNetCore.Authentication.JwtBearer` library to validate incoming tokens. It checks the issuer, audience, and expiration against the Cognito User Pool configuration.
+
+### Real-time WebSockets (API Gateway)
+
+Since WebSockets are stateful, authentication occurs at the **$connect** route:
+
+1. Angular passes the **ID Token** as a query parameter or header during the handshake.
+2. An **AWS Lambda Authorizer** validates the JWT.
+3. If valid, the connection is allowed, and the `connectionId` is mapped to the user's `sub` in DynamoDB/RDS for targeted message broadcasting.
 
 ---
 
-#### `likedBy`
+## API Endpoints
 
-Returns members who have **liked the current user**.
+The .NET API serves as the central logic hub. Below are the primary endpoint categories:
 
-**Logic**
+### Authentication & Identity
 
-- `TargetMemberId == currentUserId`
-- Returns `SourceMember`
+| **Method** | **Endpoint** | **Description** |
+| --- | --- | --- |
+| `POST` | `/api/account/register` | Creates a new user account. |
+| `POST` | `/api/account/login` | Authenticates user and returns a JWT. |
+
+### User Management
+
+| **Method** | **Endpoint** | **Description** |
+| --- | --- | --- |
+| `GET` | `/api/users` | Retrieves a list of potential matches based on filters. |
+| `GET` | `/api/users/{username}` | Fetches detailed profile information for a specific user. |
+| `PUT` | `/api/users` | Updates the authenticated user's profile details. |
+
+## Photo Service
+
+| **Method** | **Endpoint** | **Description** |
+| --- | --- | --- |
+| `POST` | `/api/users/add-photo` | Uploads an image to S3 and records the metadata in RDS. |
+| `PUT` | `/api/users/set-main-photo/{photoId}` | Updates the user's primary profile picture. |
+| `DELETE` | `/api/users/delete-photo/{photoId}` | Removes the photo from both S3 and the database. |
+
+## Interactions & Messaging
+
+| **Method** | **Endpoint** | **Description** |
+| --- | --- | --- |
+| `POST` | `/api/likes/{username}` | Likes a specific user; triggers a match if mutual. |
+| `GET` | `/api/messages` | Retrieves conversation history. |
+| `POST` | `/api/messages` | Sends a message (also broadcasted via Node.js WebSocket). |
 
 ---
 
-#### `mutual` (default)
+## Database Structure
 
-Returns members who:
+The database is designed to handle complex relationships between users, messages, and likes. Key entities include:
 
-- The current user has liked **AND**
-- Have also liked the current user
+* **Users:** Stores core profile information, preferences, and account metadata.
+* **Photos:** Contains references to S3 object URLs, categorized by user, with a "Primary" flag for profile pictures.
+* **Likes:** A junction table managing the bidirectional relationship between users to identify successful matches.
+* **Messages:** Logs real-time interactions, including sender/receiver IDs, timestamps, and read status.
 
-**Logic**
+### Relational Model for Like Feature
 
-1. Fetch IDs of members the current user has liked
-2. Find likes where:
-   - `TargetMemberId == currentUserId`
-   - `SourceMemberId` exists in the liked IDs list
-3. Return `SourceMember`
+* **AppUser** has a **many-to-many relationship with itself** (AppUser ↔ AppUser)  
+* This relationship is implemented through the **UserLike** join table.
+* Self referencing many to many relationship
 
----
+#### UserLike
 
-### Response Example
-
-```json
-[
-  {
-    "id": "memberId",
-    "displayName": "Jane Doe",
-    "photoUrl": "...",
-    "age": 29
-  }
-]
-```
-
-# Database Schemas
-
-## Relational Model for Like Feature
-
-- **AppUser** has a **many-to-many relationship with itself** (AppUser ↔ AppUser)  
-- This relationship is implemented through the **UserLike** join table.
-- Self referencing many to many relationship
-
-### UserLike
-
-- **SourceUserId** (FK → AppUser) — the user who initiates the like
-- **LikedUserId** (FK → AppUser)— the user who is being liked
+* **SourceUserId** (FK → AppUser) — the user who initiates the like
+* **LikedUserId** (FK → AppUser)— the user who is being liked
 
 Each record in `UserLike` represents one user liking another user.
 
@@ -163,270 +205,140 @@ erDiagram
     }
 ```
 
-# Feature Architecture
-
-
-## Table of Contents
-
-1. [Photo Upload Architecture](#photo-upload-architecture)
-2. [Message Architecture](#message-architecture)
-
-# Photo Upload Architecture
-
-## Core Components
-
-| Component         | Responsibility                             |
-| ----------------- | ------------------------------------------ |
-| Angular App       | Upload images & display them               |
-| .NET API          | Generate pre-signed URLs, validate uploads |
-| Amazon S3         | Secure image storage                       |
-| Amazon CloudFront | Public image delivery layer                |
-| IAM               | Enforces least-privilege access            |
-
-## 📸 Photo Upload & Display Architecture
-
-**Angular + .NET + AWS (S3 + CloudFront)**
-
-This document describes the production-ready architecture used to securely upload photos to AWS S3 using **pre-signed URLs generated by a .NET backend**, and to display those images in an **Angular application via CloudFront**.
-
 ---
 
-## 🧭 Overview
+## Photo Upload & Delivery Architecture
 
-This architecture is designed to:
+This document details the production-ready architecture designed to securely ingest and distribute user-generated content. By leveraging **Pre-signed URLs**, we decouple file processing from the API, ensuring high availability and cost-efficiency.
 
-- Avoid sending large files through backend servers
-- Keep S3 buckets fully private
-- Secure uploads using time-limited pre-signed URLs
-- Serve images globally using CloudFront
-- Scale automatically with minimal operational overhead
+### Core Infrastructure
 
----
+| **Component** | **Responsibility** |
+| --- | --- |
+| **Angular SPA** | Client-side file validation and direct-to-S3 binary upload. |
+| **.NET API (Lambda)** | Identity verification and cryptographic generation of Pre-signed URLs. |
+| **Amazon S3** | **Private** storage of assets; acts as the single source of truth. |
+| **Amazon CloudFront** | Edge-cached CDN layer for global, low-latency image delivery. |
+| **IAM & OAC** | Enforces the security boundary (CloudFront can read, Lambda can sign, User can only PUT via URL). |
 
-## 🧱 System Components
+### "Direct-to-S3" Upload Flow
 
-### Angular Application
+This pattern prevents "Server-Side Bottlenecking" by ensuring the .NET API never touches the actual file bytes.
 
-- Allows users to select images
-- Uploads images directly to S3 using pre-signed URLs
-- Displays images using CloudFront URLs
+### Request for Authorization (Angular → .NET)
 
-### .NET Backend API
+The client sends a `POST` request with metadata. The .NET API validates that the user is authenticated and the file type is permitted.
 
-- Validates upload requests
-- Generates S3 pre-signed URLs
-- Controls upload permissions and object paths
+* **Input:** `{ "fileName": "profile.jpg", "contentType": "image/jpeg" }`
 
-### Amazon S3
+### URL Generation (.NET → S3)
 
-- Stores uploaded images
-- Remains completely private
-- Acts as CloudFront’s origin
+The .NET backend uses the AWS SDK to generate a `PUT` Pre-signed URL.
 
-### Amazon CloudFront
+* **Logic:** The URL is restricted to a specific path (e.g., `uploads/{userId}/profile.jpg`) and expires in **5 minutes**.
+* **Response:**
 
-- Public CDN layer for image delivery
-- Caches images at edge locations
-- Accesses S3 using Origin Access Control (OAC)
+    {
+    "uploadUrl": "[https://datingapp-bucket.s3.amazonaws.com/uploads/user-99/profile.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256](https://datingapp-bucket.s3.amazonaws.com/uploads/user-99/profile.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256)...",
+    "objectKey": "uploads/user-99/profile.jpg"
+    }
 
-### AWS IAM
+### Binary Transfer (Angular → S3)
 
-- Enforces least-privilege access
-- Restricts write access to uploads only
-- Restricts read access to CloudFront only
+Angular uses a standard `HttpClient.put()` to send the file.
 
----
+* **Method:** `PUT`
+* **Headers:** Must match the `Content-Type` specified during URL generation.
+* **Outcome:** S3 validates the signature and stores the file directly in the private bucket.
 
-## ⬆️ Upload Architecture
+### Image Delivery & Caching
 
-### Step 1: User Selects an Image (Angular)
+To optimize performance and minimize S3 egress costs, images are never served directly from S3.
 
-- User selects an image file (`jpg`, `png`, `webp`)
-- The file is **not** sent to the backend
-- Angular sends only metadata to the .NET API
+### The CloudFront Edge Layer
 
-```json
-{
-  "fileName": "avatar.jpg",
-  "contentType": "image/jpeg"
-}
-```
+1. **Origin Access Control (OAC):** The S3 bucket policy is configured to **deny all public access**. It only accepts requests that are signed by the CloudFront service principal.
+2. **Caching Strategy:** Images are cached at AWS Edge locations. When a second user views the same profile, the image is served from the CDN in milliseconds.
+3. **URL Structure:**
+    * **Internal (S3):** `s3://datingapp-bucket/uploads/user-99/profile.jpg` (Private)
+    * **External (CDN):** `https://cdn.datingapp.com/uploads/user-99/profile.jpg` (Publicly cached)
 
-### Step 2: Generate a Pre-Signed S3 Upload URL (.NET API)
+### Security Posture
 
-The Angular application requests a pre-signed upload URL from the .NET backend. This allows the client to upload images directly to Amazon S3 without sending file data through the API.
+### Least Privilege Access (IAM)
 
-#### Request (Angular → .NET API)
+* **The API:** Only has `s3:PutObject` permission to sign the request. It cannot delete or list the entire bucket.
+* **The Client:** Only has a "one-time pass" to write a specific file to a specific folder.
+* **The Public:** Can only access files through CloudFront; direct S3 links are rejected with a `403 Forbidden`.
 
-- The client sends only file metadata to the backend.
+### Validation Layers
 
-```json
-{
-  "fileName": "avatar.jpg",
-  "contentType": "image/jpeg"
-}
-```
+* **Pre-Upload:** .NET checks `extension` and `size` limits before granting a URL.
+* **Post-Upload:** An S3 Event Trigger (Lambda) can be added to perform malware scanning or image resizing (optional enhancement).
 
-#### Backend Responsibilities (.NET API)
+## Real-Time Messaging Architecture
 
-- Validate file type and file size
-- Construct a deterministic S3 object key
+The messaging system utilizes a Serverless WebSocket pattern where connections are managed by API Gateway and tracked in a fast-access DynamoDB table.
 
-```bash
-users/{userId}/avatar.jpg
-```
+### Node.js + AWS API Gateway + DynamoDB
 
-- Generate a PUT pre-signed S3 URL with a short expiration time
-- Return the upload URL and object key to the client
+The messaging system utilizes a **Serverless WebSocket** pattern. Unlike traditional WebSockets that require a dedicated running server, this architecture is event-driven—the "server" only exists for the milliseconds required to route a message.
 
-```json
-Response (.NET → Angular)
-{
-  "uploadUrl": "https://s3.amazonaws.com/...",
-  "objectKey": "users/123/avatar.jpg"
-}
-```
+### Real-Time Infrastructure
 
-#### Why This Approach Is Used
+| **Component** | **Responsibility** |
+| --- | --- |
+| **Node.js Lambda** | Handles logic for `$connect`, `$disconnect`, and `sendMessage` events. |
+| **DynamoDB** | High-speed, key-value store used to map `UserId` to `ConnectionId`. |
+| **API Gateway** | Maintains the stateful TCP connection with the Angular client. |
+| **.NET API** | Provides long-term message persistence in the SQL database. |
 
-- The backend never handles file bytes
-- Upload access is time-limited and scoped
-- Prevents unauthorized uploads
-- Scales without backend performance impact
+### The Connection Lifecycle
 
-### Step 3: Upload Image Directly to S3 (Angular)
+### Connection & Authentication (`$connect`)
 
-Using the pre-signed URL, the Angular application uploads the image directly to Amazon S3.
+When a user logs in via Angular, they initiate a WebSocket handshake with the API Gateway.
 
-#### Upload Flow
+* **Auth:** The user passes their **Cognito ID Token** in the query string.
+* **Logic:** The Node.js Lambda validates the token. If valid, it stores a record in **DynamoDB**:
+  * **Partition Key:** `connectionId`
+  * **Attribute:** `userId` (Extracted from Cognito `sub`)
+* **Outcome:** The user is now "Online" and reachable.
 
--Angular performs an HTTP PUT request to the pre-signed URL
--The image file is sent as the request body
--Amazon S3 validates the signature, expiration, and permissions
--The image is stored in a private S3 bucket
+### Message Routing (`sendMessage`)
 
-#### Key Advantages
+When User A sends a message to User B:
 
-- No backend bottleneck
-- Large files do not impact API performance
-- Highly scalable and cost-efficient
-- Secure, time-bound uploads
+1. **Lambda Trigger:** The API Gateway triggers the Node.js Lambda with the message payload.
+2. **Persistence:** The Lambda makes a synchronous REST call to the **.NET API** to save the message to the **SQL Database**.
+3. **Lookup:** The Lambda queries **DynamoDB** using User B's `userId` to find their active `connectionId`.
+4. **Delivery:** The Lambda uses the **PostToConnection** AWS API to push the payload through the Gateway to User B’s specific connection.
 
-### Step 4: Display Image via CloudFront (Angular)
+### Clean Up (`$disconnect`)
 
-After the image upload completes, the image is displayed in the Angular application using a CloudFront URL.
+When the user closes the app or loses signal:
 
-#### Image Delivery Flow
+* **Trigger:** API Gateway detects the closed socket.
+* **Action:** The Lambda removes the `connectionId` from **DynamoDB**, effectively marking the user "Offline."
 
-- Angular references the image using the CloudFront distribution domain
-- CloudFront retrieves the image from the S3 origin
-- The image is cached at CloudFront edge locations
-- Subsequent requests are served from the cache
+### Connection Schema (DynamoDB)
 
-Example Usage
+To ensure sub-millisecond lookups, DynamoDB is configured with a simple but effective schema:
 
-```html
-<img src="https://cdn.myapp.com/users/123/avatar.jpg" />
-```
+| **Attribute** | **Type** | **Role** | **Description** |
+| --- | --- | --- | --- |
+| `connectionId` | `String` | **Partition Key** | The unique ID generated by AWS for the socket. |
+| `userId` | `String` | **GSI / Attribute** | The Cognito `sub` used to find where to send a message. |
+| `connectedAt` | `Number` | **Metadata** | Timestamp of when the session began. |
 
-#### CloudFront Configuration
+### Security & Validation
 
-- Amazon S3 is configured as the origin
-- Origin Access Control (OAC) is enabled
-- The S3 bucket is not publicly accessible
-- Only CloudFront can read objects from S3
+* **Token Validation:** Every connection attempt requires a valid JWT from your Cognito User Pool.
+* **Cross-Origin Resource Sharing (CORS):** The WebSocket API is restricted to your CloudFront domain.
+* **Encrypted Transit:** All messages are sent over `WSS` (WebSocket Secure), ensuring end-to-end encryption between the client and API Gateway.
 
-#### Benefits
+### Key Advantages of this Node.js/Lambda approach
 
-- Low-latency global image delivery
-- Reduced load on S3
-- Secure access to private buckets
-- CDN-accelerated image rendering
-
-## Security Model
-
-### Upload Security
-
-- Time-limited pre-signed URLs
-- Restricted to a single object key
-- MIME type validation
-- File size limits
-
-### Read Security
-
-- Private S3 bucket
-- CloudFront Origin Access Control
-- (Optional) Signed CloudFront URLs for private images
-
-# Message Architecture
-
-1. **Angular (WebSocket)**
-    - Initiates the persistent connection.
-2. **AWS API Gateway (WebSocket)**
-    - Manages the stateful connection between the client and the cloud.
-3. **AWS Lambda**
-    - Triggers on message events to process logic.
-4. **.NET API (REST) → SQL DB**
-    - Lambda pushes data to your existing backend for persistence.
-5. **AWS API Gateway → Recipient**
-    - The gateway pushes the message out to the target user.
-
----
-
-## 🚀 Why this is the right choice
-
-- **No servers to manage:** Total serverless overhead for the real-time layer.
-- **Scales automatically:** Handles spikes in chat activity without manual intervention.
-- **Cost-Effective:** Extremely cheap for low to medium traffic since you only pay per message/connection minute.
-- **Seamless Integration:** Works perfectly with your current **.NET API**.
-- **Future-Proof:** Easy to add "user presence" (online/offline status) later.
-
----
-
-## 🧩 Components Overview
-
-### 1️⃣ WebSocket Layer (AWS)
-
-**AWS API Gateway (WebSocket)**
-
-- **Handles:** User connections, message fan-out, and presence tracking (later).
-- **Role:** Acts as the "switchboard" for all live traffic.
-
-### 2️⃣ Business Logic (AWS Lambda)
-
-- **Stateless:** Spin up only when a message is sent.
-
-- **Router:** Determines where a message needs to go.
-- **Bridge:** Calls your existing API to ensure data consistency.
-
-### 3️⃣ Persistence (Existing .NET API)
-
-- **Authoritative:** Your SQL database remains the "Source of Truth."
-
-- **RESTful:** Messages are still saved via standard REST calls from the Lambda function.
-
-### 4️⃣ Frontend (Angular)
-
-- **Hybrid Approach:** Keeps using REST for fetching chat history.
-
-- **Real-time:** Switches to WebSockets exclusively for live updates and instant messaging.
-
-## 🛠️ AWS Implementation Components
-
-| Component | Summary & Core Purpose | How You Will Use It |
-| :--- | :--- | :--- |
-| **AWS API Gateway** | The **"Front Door"** for all client traffic. It manages security, throttling, and persistent connections. | Acts as the **WebSocket server** for Angular. It maintains the persistent connection, routes incoming messages to Lambda, and pushes outgoing messages back to specific recipients. |
-| **AWS Lambda** | **Serverless Compute** that runs code only when needed. No servers to maintain. | Acts as the **Glue**. When a message hits the Gateway, Lambda triggers to process the logic, authenticate the user, and "talk" to your .NET API. |
-| **.NET API (Existing)** | Your core **Business Logic** and data management layer. | Receives data from Lambda via REST. It handles the "heavy lifting" like saving messages to the database and validating business rules. |
-| **SQL Database** | The **Source of Truth** for all persistent data. | Stores chat history, user profiles, and metadata. It ensures that if a user refreshes their app, their history is still there. |
-| **CloudWatch** | **Monitoring and Logging** service for AWS resources. | You will use this to debug your Lambda functions and track WebSocket connection errors in real-time. |
-
-# Coding Patterns
-
-## Unit of Work
-
-- Maintains a list of objects affected by a business transaction and coordinates the writing of changes
-
-## Repository Pattern
-
-- Structural design pattern that acts as a mediator between your application's business logic and the data source (e.g. database)
+* **Instant Fan-out:** By using Node.js for the Lambda, we benefit from a non-blocking I/O model that is highly efficient for handling API Gateway events.
+* **Separation of Concerns:** The **.NET API** remains the source of truth for history (SQL), while the **Node.js Lambda** and **DynamoDB** handle the transient "plumbing" of real-time delivery.
+* **Zero Idle Cost:** If no one is messaging, you pay $0. There is no "Server" sitting idly waiting for connections.
