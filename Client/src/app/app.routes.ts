@@ -16,6 +16,7 @@ import { preventUnsavedChangesGuard } from '../core/guards/prevent-unsaved-chang
 import { AuthCallback } from '../features/account/auth-callback/auth-callback';
 import { membersResolver } from '../core/resolvers/members-resolver';
 import { listsResolver } from '../core/resolvers/lists-resolver';
+import { messagesResolver } from '../core/resolvers/messages-resolver';
 
 export const routes: Routes = [
   {
@@ -71,6 +72,10 @@ export const routes: Routes = [
       {
         path: 'messages',
         component: Messages,
+        resolve: { conversations: messagesResolver },
+        // Recommended for inbox-style pages:
+        // Clicking Messages again re-runs resolver and shows loader
+        runGuardsAndResolvers: 'always',
       },
     ],
   },
