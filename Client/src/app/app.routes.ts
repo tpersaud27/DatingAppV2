@@ -11,10 +11,11 @@ import { ServerError } from '../shared/errors/server-error/server-error';
 import { MemberProfile } from '../features/members/member-profile/member-profile';
 import { MemberPhotos } from '../features/members/member-photos/member-photos';
 import { MemberMessages } from '../features/members/member-messages/member-messages';
-import { memberResolver } from '../features/members/member-resolver';
+import { memberResolver } from '../core/resolvers/member-resolver';
 import { preventUnsavedChangesGuard } from '../core/guards/prevent-unsaved-changes-guard';
 import { AuthCallback } from '../features/account/auth-callback/auth-callback';
-import { membersResolver } from '../features/members/members-resolver';
+import { membersResolver } from '../core/resolvers/members-resolver';
+import { listsResolver } from '../core/resolvers/lists-resolver';
 
 export const routes: Routes = [
   {
@@ -64,6 +65,7 @@ export const routes: Routes = [
       },
       {
         path: 'lists',
+        resolve: { members: listsResolver },
         component: Lists,
       },
       {

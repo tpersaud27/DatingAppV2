@@ -5,9 +5,11 @@ import { Member } from '../../Types/Member';
 import { LikesPredicate } from '../../Types/Like';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { finalize } from 'rxjs';
+import { LoadingService } from '../../core/services/loading-service';
 
 @Component({
   selector: 'app-lists',
@@ -19,6 +21,8 @@ export class Lists implements OnInit {
   // Dependencies
 
   private likesService = inject(LikesServices);
+  private route = inject(ActivatedRoute);
+  private loading = inject(LoadingService);
 
   // State
 
@@ -30,7 +34,9 @@ export class Lists implements OnInit {
   // LifeCycle
 
   public ngOnInit(): void {
-    this.loadLikes();
+    // Use resolver data for initial render
+    const resolved = this.route.snapshot.data['members'] as Member[];
+    this.members.set(resolved);
   }
 
   // Actions
@@ -71,9 +77,13 @@ export class Lists implements OnInit {
   }
 
   private loadLikes(): void {
-    this.likesService.getLikes(this.predicate).subscribe({
-      next: (members) => this.members.set(members),
-      error: (err) => console.error(err),
-    });
+    this.loading.show('Loading list...');
+    this.likesService
+      .getLikes(this.predicate)
+      .pipe(finalize(() => this.loading.hide()))
+      .subscribe({
+        next: (members) => this.members.set(members),
+        error: (err) => console.error(err),
+      });
   }
 }
