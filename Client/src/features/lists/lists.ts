@@ -1,5 +1,5 @@
 import { AgePipe } from './../../core/pipes/age-pipe';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { LikesServices } from '../../core/services/likes-services';
 import { Member } from '../../Types/Member';
 import { LikesPredicate } from '../../Types/Like';
@@ -22,7 +22,9 @@ export class Lists implements OnInit {
 
   // State
 
+  // Members returned from the "likes" list endpoint (per predicate/tab)
   public members = signal<Member[]>([]);
+  // Which tab we are currently viewing
   public predicate: LikesPredicate = LikesPredicate.Liked;
 
   // LifeCycle
@@ -52,27 +54,26 @@ export class Lists implements OnInit {
   public onLike(event: MouseEvent, memberId: string): void {
     event.preventDefault();
     event.stopPropagation();
+
     this.likesService.toggleLike(memberId).subscribe({
       next: () => {
-        this.likesService.getLikeIds().subscribe();
+        // The heart button updates immediately because toggleLike() updates the service signal.
+        // Reload the list so the card set matches the current tab predicate (e.g. remove from "Liked" after unliking).
         this.loadLikes();
       },
-      error: (err) => {
-        console.error(err);
-      },
+      error: (err) => console.error(err),
     });
   }
 
   // Methods
   public hasLiked(memberId: string): boolean {
-    return this.likesService.hasLiked(memberId);
+    return this.likesService.likedIdSet().has(memberId);
   }
 
-  public loadLikes(): void {
+  private loadLikes(): void {
     this.likesService.getLikes(this.predicate).subscribe({
-      next: (members) => {
-        this.members.set(members);
-      },
+      next: (members) => this.members.set(members),
+      error: (err) => console.error(err),
     });
   }
 }
