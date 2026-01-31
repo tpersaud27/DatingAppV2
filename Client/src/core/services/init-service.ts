@@ -51,7 +51,7 @@ export class InitService {
 
       // Set current user immediately so UI can render in "logged in" state
       this.loadingService.setMessage('Loading your profile...');
-      this.accountService.currentUser.set(user);
+      this.accountService.setCurrentUser(user);
 
       // Connect websocket (requires id_token)
       this.loadingService.setMessage('Connecting messaging...');
